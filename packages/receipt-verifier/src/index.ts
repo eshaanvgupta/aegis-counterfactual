@@ -138,7 +138,7 @@ export interface Verification {
   integrity: 'INTEGRITY VERIFIED' | 'INTEGRITY FAILED';
   policy: 'POLICY VERIFIED' | 'POLICY FAILED';
   on_chain: string;
-  ai_analysis: 'AI ANALYSIS UNVERIFIED';
+  ai_analysis: 'ANALYSIS ADVISORY';
   decision: 'ALLOW' | 'BLOCK';
   errors: string[];
   verifier: 'typescript';
@@ -188,9 +188,9 @@ export function verifyReceipt(r: any): Verification {
     if (r.final_decision !== expected) policy.push(`final decision ${r.final_decision} does not follow from the evidence`);
     const errors = [...integrity, ...policy];
     return { integrity: integrity.length ? 'INTEGRITY FAILED' : 'INTEGRITY VERIFIED', policy: policy.length ? 'POLICY FAILED' : 'POLICY VERIFIED',
-      on_chain: 'NOT CHECKED', ai_analysis: 'AI ANALYSIS UNVERIFIED', decision: errors.length ? 'BLOCK' : expected, errors, verifier: 'typescript' };
+      on_chain: 'NOT CHECKED', ai_analysis: 'ANALYSIS ADVISORY', decision: errors.length ? 'BLOCK' : expected, errors, verifier: 'typescript' };
   } catch (error) {
-    return { integrity: 'INTEGRITY FAILED', policy: 'POLICY FAILED', on_chain: 'NOT CHECKED', ai_analysis: 'AI ANALYSIS UNVERIFIED', decision: 'BLOCK',
+    return { integrity: 'INTEGRITY FAILED', policy: 'POLICY FAILED', on_chain: 'NOT CHECKED', ai_analysis: 'ANALYSIS ADVISORY', decision: 'BLOCK',
       errors: [`malformed receipt: ${error instanceof Error ? error.message : String(error)}`], verifier: 'typescript' };
   }
 }

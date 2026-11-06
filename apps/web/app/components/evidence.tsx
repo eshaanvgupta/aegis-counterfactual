@@ -55,8 +55,8 @@ export function EvidenceExplorer({ run }: { run: any }) {
       <div className="row">
         <Badge tone={verification?.integrity === 'INTEGRITY VERIFIED' ? 'green' : 'red'}>{verification?.integrity}</Badge>
         <Badge tone={verification?.policy === 'POLICY VERIFIED' ? 'green' : 'red'}>{verification?.policy}</Badge>
-        <Badge tone={receipt.attestation_transaction_hash ? 'cyan' : 'plain'}>{receipt.attestation_transaction_hash ? 'On-chain attestation recorded' : 'On-chain: not attested'}</Badge>
-        <Badge tone="amber">AI ANALYSIS UNVERIFIED</Badge>
+        <Badge tone={receipt.attestation_transaction_hash ? 'cyan' : 'plain'}>{receipt.attestation_transaction_hash ? 'On-chain attestation recorded' : 'Local evidence receipt'}</Badge>
+        <Badge tone="violet">Analysis advisory · invariants authorize</Badge>
         {tampered && <Badge tone="red">tampered copy</Badge>}
       </div>
       <Provenance items={modeBadges({ receipt })} />
@@ -66,7 +66,7 @@ export function EvidenceExplorer({ run }: { run: any }) {
             <dt>Intent hash</dt><dd><Hash value={receipt.intent_hash} label="intent hash" /></dd>
             <dt>Receipt hash</dt><dd><Hash value={receipt.receipt_hash} label="receipt hash" /></dd>
             <dt>Evidence root</dt><dd><Hash value={receipt.evidence_merkle_root_or_hash} label="evidence root" /><div className="subtle tiny">Committed on-chain by the attestor</div></dd>
-            <dt>Attestation tx</dt><dd>{receipt.attestation_transaction_hash ? <TxLink hash={receipt.attestation_transaction_hash} /> : <span className="subtle tiny">none (local simulation)</span>}</dd>
+            <dt>Attestation tx</dt><dd>{receipt.attestation_transaction_hash ? <TxLink hash={receipt.attestation_transaction_hash} /> : <span className="subtle tiny">local evidence receipt (no chain write)</span>}</dd>
             <dt>Attestor</dt><dd className="mono">{receipt.attestor_id}</dd>
             <dt>Recipient · amount</dt><dd className="mono">{receipt.intent.recipient} · {near(receipt.intent.amount, 6)} NEAR</dd>
             <dt>Mandate</dt><dd className="mono">{receipt.authorization_id} (policy v{receipt.policy_version})</dd>
@@ -79,7 +79,7 @@ export function EvidenceExplorer({ run }: { run: any }) {
           <div className="stack small">
             <div className="code-view"><div>pnpm aegis:verify --receipt examples/receipts/{chosen?.name === 'selected' ? '<file>.json' : chosen?.name}{receipt.attestation_transaction_hash ? ' --network' : ''}</div></div>
             <p className="muted">The CLI (Python) and this page (TypeScript) are separate implementations; the test suite proves both agree with the Rust contract on every policy vector.</p>
-            <p className="muted">Verified ≠ correct AI: findings are explanations. What is verified is that the decision follows deterministically from the bound evidence and, with <code>--network</code>, that the vault recorded that decision for this exact intent.</p>
+            <p className="muted">What verification proves: the decision follows deterministically from the bound evidence and, with <code>--network</code>, the vault recorded that exact decision for this intent hash. Findings explain; invariants decide.</p>
             <div className="row"><ShieldCheck size={14} style={{ color: 'var(--green)' }} /><span className="tiny muted">{verification?.verifier} verifier · {verification?.errors.length ?? 0} errors</span></div>
           </div>
         </Panel>

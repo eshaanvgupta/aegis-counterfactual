@@ -1,0 +1,32 @@
+FROM node:24-bookworm-slim AS node-runtime
+
+FROM python:3.12-slim-bookworm
+
+COPY --from=node-runtime /usr/local/ /usr/local/
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/services/replay-engine \
+    AEGIS_NODE=node
+
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends ca-certificates tini \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -f /usr/local/bin/yarn /usr/local/bin/yarnpkg \
+    && corepack enable pnpm \
+    && corepack prepare pnpm@11.25.0 --activate \
+    && useradd --uid 10001 --create-home --shell /usr/sbin/nologin aegis
+
+WORKDIR /app
+COPY . .
+
+RUN pnpm install --frozen-lockfile \
+    && python -m pip install --no-cache-dir -r requirements.txt \
+    && mkdir --parents /data \
+    && chown aegis:aegis /data
+
+USER aegis
+VOLUME ["/data"]
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["python", "-m", "uvicorn", "main:app", "--app-dir", "/app/services/agent-api", "--host", "0.0.0.0", "--port", "8000"]
+

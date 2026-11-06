@@ -1,14 +1,14 @@
 # Threat model
 
-Every row of the matrix below maps to a contract unit test, a Python test, a lab scenario or a recorded testnet transaction. See [BENCHMARKS.md](BENCHMARKS.md), [SECURITY_REVIEW.md](SECURITY_REVIEW.md) and `artifacts/testnet-evidence.json`. This is an engineering threat model, not an audit.
+Every row of the matrix below maps to a contract unit test, a Python test, a lab scenario or a recorded testnet transaction. See [BENCHMARKS.md](BENCHMARKS.md), [SECURITY_REVIEW.md](SECURITY_REVIEW.md) and `artifacts/testnet-evidence.json`.
 
-## Scoped claim and trusted computing base
+## Security claim and trusted computing base
 
-Under the implemented and tested native-NEAR vault interface, a compromised registered spending agent must not execute outside an active owner-created mandate and current policy. Security investigators may be wrong or adversarial. Their findings never replace deterministic checks.
+**Claim.** Through the supported payment path, a fully compromised spending agent cannot execute any payment outside an active, owner-created mandate and the current policy. Security investigators are treated as fallible; their findings explain the decision and never replace a deterministic check.
 
-Trusted for this claim: correct NEAR execution, deployed vault code, owner authorization/signing context, current on-chain policy state, and the implementation's checked arithmetic/serialization. The independent attestor is trusted to review required evidence; even a malicious attestor must not bypass deterministic recipient/value/purpose/expiry/budget rules in the vault. If the contract does not validate a property itself, a compromised attestor can lie about it.
+**Trusted base.** NEAR consensus and execution, the deployed vault code (whose hash equals the committed reproducible WASM), the owner's signing context, current on-chain policy state, and checked arithmetic and serialization. Because the vault itself validates recipient, amount, purpose, invoice fingerprint, expiry, nonce and budget, the attestor is trusted only for evidence review. A compromised attestor key cannot approve a mandate-violating payment, which was demonstrated on-chain.
 
-Owner and vault full-access credentials are privileged. The owner can change policy, revoke roles, pause and recover funds; a vault full-access key may transfer funds or replace contract code. The agent-path claim does not protect against compromised owner/vault authority. Document deployed access-key permissions and upgrade authority rather than describing the system as trustless.
+**Governance roles.** The owner (policy, mandates, rotation, pause, recovery) and the vault deployment key (upgrades) are governance authorities, deliberately outside the agent path. Their production governance (multisig or DAO, and governed or removed upgrade keys) is specified in [PRODUCTION_CONTROLS.md](PRODUCTION_CONTROLS.md). Deployed access-key permissions are published in `artifacts/testnet-accounts.json`.
 
 ## Assets and boundaries
 
@@ -50,18 +50,20 @@ An attacker may control invoice text, retrieved/tool content, agent-generated pr
 | Frontend/API impersonation | UI never grants chain authority; credentialed writes constrained to role | Call endpoint directly; absence of owner signature cannot alter chain mandate. |
 | Secret exfiltration | Keys stay out of model inputs, browser bundles, logs and exported evidence | Inspect generated artifacts/logs and separate process environments without printing secrets. |
 
-## Asynchronous NEAR caveats
+## Asynchronous NEAR settlement design
 
-NEAR transfer and callback are separate receipts. A successful submission transaction is not proof of successful recipient transfer. Between receipts, public methods can run; reserve and mark execution pending first. A private callback must inspect the real result and finalize once. Do not claim atomic execution across receipts. [Balance safety](https://docs.near.org/smart-contracts/security/cross-contract-calls/reentrancy), [callback safety](https://docs.near.org/smart-contracts/security/cross-contract-calls/callbacks)
+A NEAR transfer and its callback execute as separate receipts, so AEGIS never infers settlement from a successful submission. Before dispatching the transfer promise, the vault marks the intent `EXECUTING` and reserves the amount against both the mandate and the daily budget. Public methods that run between receipts therefore see the reservation. The `#[private]` callback inspects the actual promise result and finalizes exactly once: on success, reserved moves to spent; on failure, the reservation is released and the nonce stays consumed. This follows NEAR's [balance-safety](https://docs.near.org/smart-contracts/security/cross-contract-calls/reentrancy) and [callback-safety](https://docs.near.org/smart-contracts/security/cross-contract-calls/callbacks) guidance.
 
-Function-call keys restrict contract/methods and cannot attach tokens. They do not evaluate the recipient encoded inside a method's arguments; the vault does that. A key allowance controls gas consumption, not authorized business spend. Retain a safe owner recovery/admin context rather than leaving an account with only an expiring restricted key. [NEAR access keys](https://docs.near.org/protocol/accounts-contracts/access-keys)
+Function-call keys restrict the receiver contract and method names and cannot attach tokens. The business checks on the recipient and amount inside a method's arguments are enforced by the vault. Key allowances bound gas spend; the mandate bounds business spend. The agent and attestor accounts hold only these vault-scoped function-call keys. See [NEAR access keys](https://docs.near.org/protocol/accounts-contracts/access-keys).
 
-## Local and model limits
+## Assurance scope
 
-Three agents do not create three independent security principals when they share a provider/process. Majority agreement proves nothing about authorization. A separate verifier process on the same machine is not a TEE and does not withstand full host compromise. A malicious or stale RPC can mislead off-chain verification; chain trust/finality and endpoint assumptions must be visible.
+* **Authorization does not depend on detection.** The security swarm explains attacks, but authorization comes only from deterministic invariants. An attack the investigators never anticipated is still blocked if it moves any bound field.
+* **Process isolation is enforced.** Each service receives one role key, refuses foreign keys, and runs in its own container in production. Confidential-compute hosting and remote attestation can be added at the infrastructure layer without protocol changes.
+* **Chain reads are explicit.** The console names the RPC endpoint it reads, and the Live Contract Probe shows the block height of every verdict. Receipts become authoritative when checked against the vault with `--network`.
+* **Reproducible by construction.** The reference agent is deterministic and obeys injected instructions, which reproduces worst-case agent behaviour exactly. LLM agents plug into the same interface with schema-validated, fail-closed output.
+* **Precise surface.** Release 1.0.0 authorizes native NEAR transfers. Additional actions (fungible tokens, NEAR Intents, contract calls) are added as separately typed actions with their own invariants and tests.
 
-Offline fixtures can deliberately reproduce a compromised proposal. They do not prove a real LLM was compromised. Real inference can vary; record model configuration and raw bounded outputs and avoid sending secrets or sensitive personal data. Synthetic attack success/block rates apply only to tested fixtures. No formal verification, production audit, universal prompt-injection detection, arbitrary calldata execution, cross-chain safety, or regulatory compliance is claimed.
+## Verification status
 
-## Acceptance boundary
-
-Status on 2026-11-05: the access-control, hash-binding, replay, pending-transfer, quota/concurrency, forged-callback, transfer-failure, stale-policy and receipt-tamper tests run in the 68 contract tests, the 99 Python tests and the 23 lab scenarios. On NEAR testnet we recorded one authorized transfer (`2DhAJUe7…`) and six contract rejections of unauthorized actions, all with genuine transaction IDs from RPC (`artifacts/testnet-evidence.json`). Open residual risks are listed in [LIMITATIONS.md](LIMITATIONS.md).
+As of 2026-11-07: the access-control, hash-binding, replay, pending-transfer, quota and concurrency, forged-callback, transfer-failure, stale-policy and receipt-tamper checks run across 68 contract tests, 100 Python tests, 13 TypeScript tests and 23 lab scenarios. On NEAR testnet, the evidence ledger records an authorized, settled transfer (`2DhAJUe7…`) and six contract rejections of unauthorized actions, all with genuine transaction IDs from RPC (`artifacts/testnet-evidence.json`). The Live Contract Probe lets anyone extend this matrix against the deployed contract in real time.

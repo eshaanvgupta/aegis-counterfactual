@@ -62,6 +62,17 @@ def health() -> dict:
             "brand": os.getenv("AEGIS_BRAND", "AEGIS // COUNTERFACTUAL"), "time_ms": int(time.time() * 1000)}
 
 
+@app.get("/system/ready")
+def ready() -> dict:
+    """Readiness probe: the service can reach its authoritative vault backend."""
+    try:
+        status = get_backend().status()
+        store.list_runs(1)
+    except Exception as exc:  # noqa: BLE001 - a failed dependency keeps the instance out of rotation
+        raise HTTPException(503, f"Vault backend not ready: {str(exc)[:240]}") from None
+    return {"service": "agent-api", "status": "ready", "mode": mode(), "vault_id": status.get("vault_id")}
+
+
 @app.get("/vault/status")
 def vault_status() -> dict:
     backend = get_backend()

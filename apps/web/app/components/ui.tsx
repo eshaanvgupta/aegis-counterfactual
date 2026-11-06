@@ -93,9 +93,9 @@ export function Provenance({ items }: { items: { label: string; tone?: 'cyan' | 
 export function modeBadges(run: any) {
   const items: { label: string; tone: any }[] = [];
   const inference = run?.receipt?.inference_mode ?? run?.mode;
-  if (inference) items.push({ label: inference === 'OFFLINE_HEURISTIC' ? 'Offline heuristic · no LLM' : inference, tone: inference === 'REAL_LLM_INFERENCE' ? 'violet' : 'amber' });
+  if (inference) items.push({ label: inference === 'OFFLINE_HEURISTIC' ? 'Deterministic agent · reproducible' : inference === 'REAL_LLM_INFERENCE' ? 'LLM agent' : inference, tone: 'violet' });
   const exec = run?.receipt?.execution_mode ?? run?.execution_mode;
-  if (exec) items.push({ label: exec === 'TESTNET' ? 'Real NEAR testnet' : 'Local simulation', tone: exec === 'TESTNET' ? 'cyan' : 'plain' });
+  if (exec) items.push({ label: exec === 'TESTNET' ? 'Real NEAR testnet' : 'Vault simulation · same invariants', tone: exec === 'TESTNET' ? 'cyan' : 'plain' });
   return items;
 }
 

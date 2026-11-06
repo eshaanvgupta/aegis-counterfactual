@@ -19,6 +19,7 @@ const required = [
   ['artifacts/testnet-deployment.json', 'testnet-deployment.json'],
   ['artifacts/benchmark-offline.json', 'lab-runs.json'],
   ['artifacts/contract-build.json', 'contract-build.json'],
+  ['artifacts/probe-mandate.json', 'probe-mandate.json'],
 ];
 for (const [from, to] of required) {
   const source = join(root, from);

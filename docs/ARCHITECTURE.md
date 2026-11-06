@@ -19,7 +19,7 @@ flowchart LR
     Verifier -->|attest_intent hash, root, approve| Vault
     Vault -->|native transfer + private callback| Recipient[Authorized recipient]
     Web[Next.js workstation<br/>no keys] --> Agent
-    Web -.->|static mode: public RPC views| Vault
+    Web -.->|public mode: live RPC views| Vault
 ```
 
 | Component | Code | Holds | Responsibility |
@@ -33,7 +33,8 @@ flowchart LR
 | Receipts | `aegis/receipts.py`, `packages/receipt-verifier` | — | `aegis.cvr/1`: intent, mandate snapshot, policy results, findings, Merkle root over evidence sections, receipt hash. Python and TypeScript verifiers are independent implementations |
 | NEAR client | `packages/near-client` | one key per process | near-api-js 7.4.0, RPC failover, role assertion, outcome parsing, evidence ledger |
 | Role runner | `scripts/testnet-role.mjs` | — | Starts a process with exactly one role key and strips every other `NEAR_*_PRIVATE_KEY` |
-| Workstation | `apps/web` | nothing | Seven views plus a guided demo. Live mode talks to the local services; static mode shows recorded evidence and reads live vault state over public RPC |
+| Console | `apps/web` | nothing | Eight views plus a guided demo. Service mode drives the full workflow; public mode reads current vault state from NEAR RPC with failover and auto-sync |
+| Live Contract Probe | `apps/web/app/components/probe.tsx`, `lib/agent.ts` | nothing | Runs the reference agent in the browser on visitor-written input, sends the resulting intent to the deployed contract's `check_intent` and `canonical_intent_hash` views, and independently re-derives both results in TypeScript |
 
 ## Lifecycle of a payment
 
@@ -60,7 +61,7 @@ The CVR evidence root is a Merkle root over six sections: `snapshot, reference, 
 * **INTEGRITY**: the hashes and the Merkle root recompute.
 * **POLICY**: the decision follows from the bound intent and mandate.
 * **ON-CHAIN**: with `--network`, the vault recorded the same decision and evidence root for this intent hash.
-* **AI ANALYSIS UNVERIFIED**: always shown. Findings are explanations.
+* **ANALYSIS ADVISORY**: a deliberate separation-of-authority label; findings explain the attempt and never authorize it.
 
 ## Service hardening
 
@@ -72,6 +73,7 @@ The services enforce an origin allowlist (`AEGIS_WEB_ORIGINS`), require an `X-AE
 | --- | --- | --- | --- |
 | `LOCAL_SIMULATION` | `pnpm dev` | none | in-process vault simulation with the same invariants |
 | `TESTNET` | `pnpm dev:testnet` | one per service | live vault on NEAR testnet |
-| Static viewer | `pnpm build:static` | none | recorded evidence + public RPC views |
+| Production stack | `docker compose -f compose.production.yml up` | one per container | live vault on NEAR testnet, behind the hardened gateway |
+| Public console | `pnpm build:static` (GitHub Pages) | none | live vault state over public RPC with failover, the Live Contract Probe, and the recorded transaction ledger |
 
-The UI labels the mode, the agent type (`OFFLINE_HEURISTIC` or an LLM) and the evidence source on every screen.
+The UI labels the mode, the agent type and the evidence source on every screen.

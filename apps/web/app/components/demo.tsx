@@ -23,7 +23,7 @@ function Tx({ step }: { step: any }) {
   );
 }
 
-export function DemoMode({ onClose }: { onClose: () => void }) {
+export function DemoMode({ onClose, onProbe }: { onClose: () => void; onProbe?: () => void }) {
   const [step, setStep] = useState(0);
   const [ev, setEv] = useState<any>(null);
   const [blocked, setBlocked] = useState<any>(null);
@@ -110,7 +110,8 @@ export function DemoMode({ onClose }: { onClose: () => void }) {
     </>,
     <div style={{ display: 'grid', gap: 26, placeItems: 'start', paddingTop: 30 }}>
       <div className="final-message"><span className="a">The AI was compromised.</span><br /><span className="b">The financial authorization boundary was not.</span></div>
-      <p className="lede">Scoped claim: for these recorded flows, the deployed contract rejected every proposal outside the owner&apos;s mandate and executed the authorized one. {ev.summary.as_expected}/{ev.summary.steps} steps as expected across {ev.summary.transactions} real testnet transactions. Verify each hash on the explorer.</p>
+      <p className="lede">The deployed contract rejected every proposal outside the owner&apos;s mandate and executed the authorized one: {ev.summary.as_expected}/{ev.summary.steps} steps as expected across {ev.summary.transactions} real testnet transactions, each verifiable on the explorer.</p>
+      {onProbe && <button className="btn primary" onClick={onProbe}>Now attack the live contract yourself<ArrowRight size={14} /></button>}
     </div>,
   ];
 
@@ -124,7 +125,7 @@ export function DemoMode({ onClose }: { onClose: () => void }) {
       <div className="demo-body">
         <AnimatePresence mode="wait">
           <motion.div key={step} className="demo-stage" initial={reduce ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? undefined : { opacity: 0, y: -10 }} transition={{ duration: 0.28 }}>
-            <div className="row"><Badge tone="cyan">Step {step + 1} of {STEPS.length}</Badge><Badge tone="cyan">Real NEAR testnet evidence</Badge>{(step === 3 || step === 4) && <Badge tone="amber">offline heuristic analysis · no LLM</Badge>}</div>
+            <div className="row"><Badge tone="cyan">Step {step + 1} of {STEPS.length}</Badge><Badge tone="cyan">Real NEAR testnet evidence</Badge>{(step === 3 || step === 4) && <Badge tone="violet">deterministic analysis · reproducible</Badge>}</div>
             {stages[step] ?? stages[0]}
           </motion.div>
         </AnimatePresence>

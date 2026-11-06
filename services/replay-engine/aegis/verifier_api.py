@@ -47,6 +47,16 @@ def health() -> dict:
             "signing_configured": bool(os.getenv("NEAR_ATTESTOR_PRIVATE_KEY")) if mode() == "TESTNET" else "LOCAL_SIMULATION"}
 
 
+@app.get("/system/ready")
+def ready() -> dict:
+    """Readiness probe: the independent verifier can read the authoritative vault."""
+    try:
+        status = get_backend().status()
+    except Exception as exc:  # noqa: BLE001 - a failed dependency keeps the instance out of rotation
+        raise HTTPException(503, f"Vault backend not ready: {str(exc)[:240]}") from None
+    return {"service": "verifier-api", "status": "ready", "mode": mode(), "vault_id": status.get("vault_id")}
+
+
 @app.post("/verify")
 def verify(receipt: dict) -> dict:
     return verify_receipt(receipt)

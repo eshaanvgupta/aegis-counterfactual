@@ -34,6 +34,16 @@ def health() -> dict:
     return {"service": "owner-api", "status": "ok", "mode": mode(), "principal": "OWNER"}
 
 
+@app.get("/system/ready")
+def ready() -> dict:
+    """Readiness probe: owner operations have a reachable authoritative vault."""
+    try:
+        status = get_backend().status()
+    except Exception as exc:  # noqa: BLE001 - a failed dependency keeps the instance out of rotation
+        raise HTTPException(503, f"Vault backend not ready: {str(exc)[:240]}") from None
+    return {"service": "owner-api", "status": "ready", "mode": mode(), "vault_id": status.get("vault_id")}
+
+
 class MandateRequest(Strict):
     id: str = Field(pattern=r"^[A-Za-z0-9._:-]{1,80}$")
     recipient: str = Field(min_length=2, max_length=64)

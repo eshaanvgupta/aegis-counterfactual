@@ -1,0 +1,154 @@
+name: aegis-counterfactual
+
+x-service-image: &service-image
+  image: ${AEGIS_IMAGE_PREFIX:-ghcr.io/eshaanvgupta/aegis-counterfactual}-service:latest
+  build:
+    context: .
+    dockerfile: deploy/Dockerfile.service
+  restart: unless-stopped
+  stop_grace_period: 30s
+  read_only: true
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,size=64m
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  volumes:
+    - aegis-data:/data
+  networks:
+    - backend
+    - egress
+
+x-service-environment: &service-environment
+  AEGIS_MODE: ${AEGIS_MODE:-TESTNET}
+  AEGIS_DB: /data/aegis.sqlite3
+  AEGIS_CHAIN_LEDGER: /data/chain-ledger.jsonl
+  AEGIS_WEB_ORIGINS: ${AEGIS_PUBLIC_ORIGIN:?Set AEGIS_PUBLIC_ORIGIN to the HTTPS console origin}
+  NEAR_NETWORK_ID: ${NEAR_NETWORK_ID:-testnet}
+  NEAR_RPC_URL: ${NEAR_RPC_URL:-https://test.rpc.fastnear.com,https://rpc.testnet.near.org}
+  NEAR_ALLOW_TESTNET_TRANSACTIONS: "true"
+  NEAR_VAULT_ID: ${NEAR_VAULT_ID:?Set the deployed testnet vault account}
+  NEAR_OWNER_ID: ${NEAR_OWNER_ID:?Set the owner testnet account}
+  NEAR_AGENT_ID: ${NEAR_AGENT_ID:?Set the agent testnet account}
+  NEAR_ATTESTOR_ID: ${NEAR_ATTESTOR_ID:?Set the attestor testnet account}
+  NEAR_RECIPIENT_ID: ${NEAR_RECIPIENT_ID:?Set the authorized recipient testnet account}
+
+services:
+  verifier:
+    <<: *service-image
+    command: ["python", "-m", "uvicorn", "main:app", "--app-dir", "/app/services/verifier-api", "--host", "0.0.0.0", "--port", "8001", "--workers", "1"]
+    environment:
+      <<: *service-environment
+      AEGIS_ROLE: ATTESTOR
+      AEGIS_VERIFIER_TOKEN: ${AEGIS_VERIFIER_TOKEN:?Set an independent verifier bearer token}
+      NEAR_ATTESTOR_PRIVATE_KEY: ${NEAR_ATTESTOR_PRIVATE_KEY:?Set the attestor testnet key}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/system/ready', timeout=5)"]
+      interval: 15s
+      timeout: 7s
+      retries: 8
+      start_period: 20s
+
+  agent:
+    <<: *service-image
+    command: ["python", "-m", "uvicorn", "main:app", "--app-dir", "/app/services/agent-api", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+    environment:
+      <<: *service-environment
+      AEGIS_ROLE: AGENT
+      AEGIS_VERIFIER_URL: http://verifier:8001
+      AEGIS_VERIFIER_TOKEN: ${AEGIS_VERIFIER_TOKEN:?Set an independent verifier bearer token}
+      NEAR_AGENT_PRIVATE_KEY: ${NEAR_AGENT_PRIVATE_KEY:?Set the restricted agent testnet key}
+      LLM_PROVIDER: ${LLM_PROVIDER:-offline}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      AEGIS_ALLOW_PAID_LLM: ${AEGIS_ALLOW_PAID_LLM:-false}
+    depends_on:
+      verifier:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/system/ready', timeout=5)"]
+      interval: 15s
+      timeout: 7s
+      retries: 8
+      start_period: 20s
+
+  owner:
+    <<: *service-image
+    command: ["python", "-m", "uvicorn", "main:app", "--app-dir", "/app/services/owner-api", "--host", "0.0.0.0", "--port", "8002", "--workers", "1"]
+    environment:
+      <<: *service-environment
+      AEGIS_ROLE: OWNER
+      AEGIS_OWNER_TOKEN: ${AEGIS_OWNER_TOKEN:?Set an independent owner bearer token}
+      NEAR_OWNER_PRIVATE_KEY: ${NEAR_OWNER_PRIVATE_KEY:?Set the owner testnet key}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/system/ready', timeout=5)"]
+      interval: 15s
+      timeout: 7s
+      retries: 8
+      start_period: 20s
+
+  web:
+    image: ${AEGIS_IMAGE_PREFIX:-ghcr.io/eshaanvgupta/aegis-counterfactual}-web:latest
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+    restart: unless-stopped
+    stop_grace_period: 30s
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - frontend
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 7s
+      retries: 8
+      start_period: 20s
+
+  gateway:
+    image: nginxinc/nginx-unprivileged:1.29-alpine
+    restart: unless-stopped
+    stop_grace_period: 30s
+    ports:
+      - "${AEGIS_HTTP_PORT:-8080}:8080"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+    tmpfs:
+      # nginx-unprivileged runs as uid 101, so its scratch space is owned by that user.
+      - /var/cache/nginx:rw,noexec,nosuid,size=32m,uid=101,gid=101
+      - /var/run:rw,noexec,nosuid,size=8m,uid=101,gid=101
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      agent:
+        condition: service_healthy
+      owner:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--output-document=-", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  aegis-data:
+
+networks:
+  frontend:
+  # Service-to-service traffic only: never routable from outside the host.
+  backend:
+    internal: true
+  # Outbound path the signing services use to reach NEAR RPC. It publishes no ports.
+  egress:
+

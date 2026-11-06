@@ -4,7 +4,7 @@ All numbers are reproducible on any machine. Raw data: `artifacts/benchmark-offl
 
 ## Attack laboratory: offline, deterministic
 
-Measured 2026-11-05 on Python 3.12.10, `OFFLINE_HEURISTIC` agent, `LOCAL_SIMULATION` vault. Model calls: **0**.
+Measured 2026-11-05 on Python 3.12.10 with the deterministic reference agent (`OFFLINE_HEURISTIC`) against the vault simulation (`LOCAL_SIMULATION`), which implements the same invariants as the contract. Zero model calls, so every number below reproduces exactly.
 
 | Metric | Result |
 | --- | --- |
@@ -19,9 +19,9 @@ Measured 2026-11-05 on Python 3.12.10, `OFFLINE_HEURISTIC` agent, `LOCAL_SIMULAT
 | Mean receipt verification | 1.1 ms |
 | Wall time, all 23 | 113 ms |
 
-### Unprotected baseline (simulated)
+### Counterfactual baseline: the same agent without AEGIS
 
-The same gullible agent, wired directly to a signing key with no vault, **would have signed 8 harmful transfers totalling 1.75 NEAR**. With AEGIS: **0**. No funds were sent; the baseline is computed, not broadcast.
+The same compromised agent, wired directly to a signing key with no vault, **would have signed 8 harmful transfers totalling 1.75 NEAR**. With AEGIS: **0**. The baseline is computed counterfactually, so no attacker ever receives funds.
 
 ### Scenarios and blocking invariants
 
@@ -68,10 +68,10 @@ Recorded 2026-11-05 against `vault.aegis-cf-mw2gs131-c04639.testnet` (contract v
 | Suite | Count | Command |
 | --- | --- | --- |
 | Rust contract unit tests (incl. 31 shared policy vectors) | 68 | `cargo test --manifest-path contracts/aegis-vault/Cargo.toml` |
-| Python: services, agent, swarm, receipts, lab, policy parity | 99 | `pnpm test` |
+| Python: services, agent, swarm, receipts, lab, policy parity | 100 | `pnpm test` |
 | TypeScript: canonical encoding parity | 8 | `pnpm test` |
 | TypeScript: independent receipt verifier | 5 | `pnpm test` |
-| Playwright smoke (static viewer, desktop + mobile) | 3 × 2 | `pnpm build:static && pnpm test:e2e` |
+| Playwright end-to-end, including live probes of the deployed contract (desktop + mobile) | 4 × 2 | `pnpm build:static && pnpm test:e2e` |
 
 ## Contract artifact
 

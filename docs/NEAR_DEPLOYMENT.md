@@ -4,14 +4,16 @@
 
 | Item | Value |
 | --- | --- |
-| Network | NEAR **testnet** (no mainnet) |
+| Network | NEAR **testnet** — reproducible competition deployment |
 | Vault | [`vault.aegis-cf-mw2gs131-c04639.testnet`](https://testnet.nearblocks.io/address/vault.aegis-cf-mw2gs131-c04639.testnet) |
 | Contract | v1.0.0, code hash `AAVfbPT7XAg3FPQMpZyeTX11Zxh7CKH1rPpzkGb8MMuj` |
 | WASM SHA-256 | `8827d259dd6f2c520e09a60c468da5752ddad23b15f84795d0a6c591e4be58d2` (`artifacts/aegis_vault.wasm`) |
 | Deploy + init (atomic) | [`48ukvVxfSxUbDu5HbfXCshbDiDcKWJ4DogFLGSC1Km48`](https://testnet.nearblocks.io/txns/48ukvVxfSxUbDu5HbfXCshbDiDcKWJ4DogFLGSC1Km48) |
-| Upgrade 1 | [`FB6AtsHRJtZKd7NaQXRkhD61yDpLqp5PKg4Li1iDFkk1`](https://testnet.nearblocks.io/txns/FB6AtsHRJtZKd7NaQXRkhD61yDpLqp5PKg4Li1iDFkk1). Rebuilt with `--cfg near` so contract panics show their messages on-chain |
-| Upgrade 2 | [`FypzJGy3BjKcZMvMKQ7UeU7FAGmPgzYphZvDWfCjjLmm`](https://testnet.nearblocks.io/txns/FypzJGy3BjKcZMvMKQ7UeU7FAGmPgzYphZvDWfCjjLmm). Reproducible build (path remapping); current code |
+| Upgrade 1 | [`FB6AtsHRJtZKd7NaQXRkhD61yDpLqp5PKg4Li1iDFkk1`](https://testnet.nearblocks.io/txns/FB6AtsHRJtZKd7NaQXRkhD61yDpLqp5PKg4Li1iDFkk1). Enables descriptive on-chain panic codes (`--cfg near`) |
+| Upgrade 2 | [`FypzJGy3BjKcZMvMKQ7UeU7FAGmPgzYphZvDWfCjjLmm`](https://testnet.nearblocks.io/txns/FypzJGy3BjKcZMvMKQ7UeU7FAGmPgzYphZvDWfCjjLmm). Bit-for-bit reproducible build (path remapping); current code |
 | Evidence matrix | `artifacts/testnet-evidence.json`: 19/19 steps as expected, 15 transactions |
+| Live Contract Probe mandate | `INV-2026-003`, written by the OWNER key in [`aUj1V9ZRBHeqhvgSH7kYmMw7sAufzMdGRp7DM7ETKFF`](https://testnet.nearblocks.io/txns/aUj1V9ZRBHeqhvgSH7kYmMw7sAufzMdGRp7DM7ETKFF); authorized invoice bytes in `artifacts/probe-mandate.json` |
+| Live viewer | [eshaanvgupta.github.io/aegis-counterfactual](https://eshaanvgupta.github.io/aegis-counterfactual/) |
 
 ### Principals
 
@@ -41,12 +43,12 @@ pnpm aegis:verify --receipt examples/receipts/testnet-blocked.json --network
 pnpm aegis:verify --receipt examples/receipts/testnet-allowed.json --network
 ```
 
-## Reproduce from scratch (your own disposable accounts)
+## Reproduce from scratch with isolated testnet accounts
 
 ```bash
 pnpm install && pnpm run setup
 pnpm testnet:provision   # faucet-funded OWNER, VAULT, AGENT (FC key), ATTESTOR (FC key), RECIPIENT
-pnpm build:contract      # needs the pinned Rust toolchain + wasm32 target (WSL/Linux recommended)
+pnpm build:contract      # pinned Rust toolchain + wasm32 target
 pnpm testnet:deploy      # VAULT key only: deploy + init in one transaction
 pnpm testnet:e2e         # runs the evidence matrix through the role-isolated services
 pnpm dev:testnet         # workstation against your vault
@@ -60,4 +62,4 @@ pnpm dev:testnet         # workstation against your vault
 
 * `rust-toolchain.toml` pins rustc 1.97.0 and the `wasm32-unknown-unknown` target.
 * `scripts/build-contract.mjs` builds with `--cfg near` (host functions such as `panic_utf8` and `sha256`) and remaps path prefixes so the output is reproducible. It then lowers post-MVP opcodes with binaryen 132 (`--llvm-memory-copy-fill-lowering`, `--signext-lowering`, `--llvm-nontrapping-fptoint-lowering`), because the NEAR runtime accepts only WebAssembly MVP. Finally it validates the output, checks the host imports and required exports, and writes `artifacts/contract-build.json`.
-* On Windows, Windows Application Control may block cargo build scripts. The recorded artifact was built in WSL Ubuntu 24.04.
+* The recorded artifact and GitHub CI build on Ubuntu 24.04, and a fresh Linux checkout reproduces the identical SHA-256.

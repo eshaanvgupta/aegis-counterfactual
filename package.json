@@ -9,6 +9,8 @@
     "dev": "node scripts/dev.mjs",
     "dev:testnet": "node scripts/dev.mjs --testnet",
     "start": "node scripts/dev.mjs --production",
+    "start:production": "node scripts/dev.mjs --production --testnet",
+    "production:check": "node scripts/validate-production.mjs",
     "build": "node scripts/build-web.mjs",
     "build:static": "node scripts/build-web.mjs --static",
     "preview:static": "node scripts/serve-static.mjs",

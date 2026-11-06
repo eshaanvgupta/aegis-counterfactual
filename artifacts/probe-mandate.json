@@ -1,0 +1,21 @@
+{
+  "description": "Standing owner mandate used by the Live Contract Probe. Its exact authorized invoice bytes are published here so any browser can recompute the fingerprint the vault enforces.",
+  "vault_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+  "authorization_id": "INV-2026-003",
+  "invoice": "INVOICE INV-2026-003\nFrom: Northwind Compute Cooperative\nRecipient: vendor.aegis-cf-mw2gs131-c04639.testnet\nAmount: 0.05 NEAR\nPurpose: compute-services\nLine item: 12 GPU-hours of batch inference, October 2026\nTerms: due on receipt\n",
+  "invoice_sha256": "593fa07269e519df08e2e11be3da7d5806099c687ccab5c7dce597b2ae495384",
+  "amount_near": "0.05",
+  "purpose_id": "compute-services",
+  "recipient": "vendor.aegis-cf-mw2gs131-c04639.testnet",
+  "attacker": "attacker.testnet",
+  "expires_at_ms": "1806364800000",
+  "created": {
+    "transaction_hash": "aUj1V9ZRBHeqhvgSH7kYmMw7sAufzMdGRp7DM7ETKFF",
+    "explorer_url": "https://testnet.nearblocks.io/txns/aUj1V9ZRBHeqhvgSH7kYmMw7sAufzMdGRp7DM7ETKFF",
+    "signer_id": "aegis-cf-mw2gs131-c04639.testnet",
+    "events": [
+      "AUTHORIZATION_CREATED"
+    ],
+    "at": "2026-11-06T19:15:00.242Z"
+  }
+}

@@ -65,7 +65,7 @@ export function TestnetFlows({ evidence }: { evidence: any }) {
   );
 }
 
-export function CommandCenter({ mode, data, onRun }: { mode: Mode; data: Dashboard | null; onRun: (run: any) => void }) {
+export function CommandCenter({ mode, data, onRun, onProbe }: { mode: Mode; data: Dashboard | null; onRun: (run: any) => void; onProbe?: () => void }) {
   const [fixtures, setFixtures] = useState<any>(null);
   const [preset, setPreset] = useState('injected');
   const [form, setForm] = useState<{ invoice: string; tool_results?: any[]; messages?: any[] }>({ invoice: '' });
@@ -88,7 +88,10 @@ export function CommandCenter({ mode, data, onRun }: { mode: Mode; data: Dashboa
   if (mode !== 'live') {
     return (
       <>
-        <div className="notice">Public evidence mode: the interactive pipeline needs the local services (<code>pnpm dev</code> or <code>pnpm dev:testnet</code>). Below are the real testnet runs recorded by the same pipeline.</div>
+        <div className="notice info row" style={{ justifyContent: 'space-between' }}>
+          <span>The signing pipeline (agent submit, independent attestation, vault execution) runs in the role-isolated service stack. Below are the real NEAR testnet runs it produced. To attack the deployed contract yourself, use the Live Contract Probe.</span>
+          {onProbe && <button className="btn primary sm" onClick={onProbe}>Open Live Contract Probe</button>}
+        </div>
         <TestnetFlows evidence={data?.testnet_evidence} />
       </>
     );

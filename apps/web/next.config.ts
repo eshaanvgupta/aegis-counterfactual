@@ -17,6 +17,9 @@ const config: NextConfig = {
   ...(STATIC
     ? { output: 'export' as const, basePath: basePath || undefined, images: { unoptimized: true }, trailingSlash: true }
     : {
+        // Produce the traced Node server used by the production container. The public
+        // GitHub Pages build keeps using the explicit static-export branch above.
+        output: 'standalone' as const,
         async rewrites() {
           return [
             { source: '/api/:path*', destination: `${process.env.AEGIS_AGENT_API ?? 'http://127.0.0.1:8000'}/:path*` },

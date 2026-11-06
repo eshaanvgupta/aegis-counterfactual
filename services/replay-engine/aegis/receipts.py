@@ -173,7 +173,7 @@ def verify_receipt(data: dict | Receipt, trusted_snapshot: Snapshot | None = Non
             "integrity": "INTEGRITY VERIFIED" if not integrity else "INTEGRITY FAILED",
             "policy": "POLICY VERIFIED" if not policy_errors else "POLICY FAILED",
             "on_chain": "NOT CHECKED",
-            "ai_analysis": "AI ANALYSIS UNVERIFIED",
+            "ai_analysis": "ANALYSIS ADVISORY",
             "decision": expected if not errors else "BLOCK",
             "recorded_decision": r.final_decision,
             "intent_hash": r.intent_hash,
@@ -185,7 +185,7 @@ def verify_receipt(data: dict | Receipt, trusted_snapshot: Snapshot | None = Non
     except (ValidationError, ValueError, KeyError, TypeError) as exc:
         message = str(exc).splitlines()[0][:300]
         return {"integrity": "INTEGRITY FAILED", "policy": "POLICY FAILED", "on_chain": "NOT CHECKED",
-                "ai_analysis": "AI ANALYSIS UNVERIFIED", "decision": "BLOCK", "errors": [f"malformed receipt: {message}"]}
+                "ai_analysis": "ANALYSIS ADVISORY", "decision": "BLOCK", "errors": [f"malformed receipt: {message}"]}
 
 
 def get_evidence(receipt: dict | Receipt, section: str | None = None) -> Any:

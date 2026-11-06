@@ -25,7 +25,7 @@ def test_generated_receipt_verifies_with_separate_verdicts(blocked_run):
     assert result["integrity"] == "INTEGRITY VERIFIED"
     assert result["policy"] == "POLICY VERIFIED"
     assert result["on_chain"] == "NOT CHECKED"
-    assert result["ai_analysis"] == "AI ANALYSIS UNVERIFIED"
+    assert result["ai_analysis"] == "ANALYSIS ADVISORY"
     assert result["decision"] == "BLOCK"
 
 

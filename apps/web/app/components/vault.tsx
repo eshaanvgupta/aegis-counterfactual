@@ -54,7 +54,7 @@ export function PolicyVault({ mode, data, refresh }: { mode: Mode; data: Dashboa
         </Panel>
         <Panel eyebrow="Owner console" title="Signed owner actions">
           {mode !== 'live' ? (
-            <div className="notice">Owner actions require the OWNER key, which only exists in the local owner process. Run <code>pnpm dev:testnet</code> and paste <code>runtime/owner-token.txt</code> here. This public page is read-only.</div>
+            <div className="notice info">Owner actions are signed by the OWNER key inside its isolated owner service, never in a browser. Connect the service stack (<code>pnpm dev:testnet</code> or <code>compose.production.yml</code>) and authenticate with the owner token to create mandates, change policy or pause the vault. Everything shown here is read live from the chain.</div>
           ) : (
             <div className="stack">
               <label className="field"><span className="row" style={{ gap: 6 }}><KeyRound size={12} /> Owner token (runtime/owner-token.txt)</span><input className="input mono" type="password" value={token} onChange={(e) => saveToken(e.target.value)} placeholder="paste the local owner token" /></label>
