@@ -1,0 +1,10 @@
+[tool.pytest.ini_options]
+pythonpath = ["services/replay-engine"]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.pyright]
+extraPaths = ["services/replay-engine"]
+
+[tool.pyrefly]
+search-path = ["services/replay-engine"]

@@ -1,0 +1,44 @@
+{
+  "name": "aegis-counterfactual",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "node scripts/dev.mjs",
+    "dev:testnet": "node scripts/dev.mjs --testnet",
+    "start": "node scripts/dev.mjs --production",
+    "build": "node scripts/build-web.mjs",
+    "build:static": "node scripts/build-web.mjs --static",
+    "preview:static": "node scripts/serve-static.mjs",
+    "build:contract": "node scripts/build-contract.mjs",
+    "test": "node scripts/test.mjs",
+    "test:security": "node scripts/test.mjs --security",
+    "test:e2e": "playwright test",
+    "demo:offline": "node scripts/python.mjs -m aegis.cli benchmark",
+    "demo:testnet": "tsx scripts/testnet-e2e.ts",
+    "verify:receipts": "node scripts/python.mjs -m aegis.cli verify-all",
+    "aegis:verify": "node scripts/python.mjs -m aegis.cli verify",
+    "testnet:provision": "tsx scripts/provision-testnet.ts",
+    "testnet:deploy": "node scripts/testnet-role.mjs VAULT scripts/deploy-contract.ts",
+    "testnet:upgrade": "node scripts/testnet-role.mjs VAULT scripts/upgrade-contract.ts",
+    "testnet:e2e": "tsx scripts/testnet-e2e.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3",
+    "@types/node": "24.10.1",
+    "binaryen": "132.0.0"
+  },
+  "dependencies": {
+    "near-api-js": "7.4.0",
+    "dotenv": "17.2.3"
+  },
+  "description": "AEGIS // COUNTERFACTUAL: the AI can be compromised; the financial authorization boundary cannot. Counterfactual replay, a security swarm, and a NEAR vault that enforces the owner mandate.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12"
+  }
+}

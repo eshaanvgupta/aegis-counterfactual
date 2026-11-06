@@ -1,0 +1,556 @@
+{
+  "generated_at": "2026-11-05T09:41:54.466Z",
+  "network": "testnet",
+  "vault": "vault.aegis-cf-mw2gs131-c04639.testnet",
+  "contract": {
+    "code_hash": "AAVfbPT7XAg3FPQMpZyeTX11Zxh7CKH1rPpzkGb8MMuj",
+    "wasm_sha256": "8827d259dd6f2c520e09a60c468da5752ddad23b15f84795d0a6c591e4be58d2",
+    "deploy_transaction": "48ukvVxfSxUbDu5HbfXCshbDiDcKWJ4DogFLGSC1Km48"
+  },
+  "principals": {
+    "owner": "aegis-cf-mw2gs131-c04639.testnet",
+    "agent": "agent.aegis-cf-mw2gs131-c04639.testnet",
+    "attestor": "attestor.aegis-cf-mw2gs131-c04639.testnet",
+    "recipient": "vendor.aegis-cf-mw2gs131-c04639.testnet"
+  },
+  "mandate": {
+    "id": "INV-2026-002",
+    "amount_near": "0.05",
+    "purpose_id": "compute-services",
+    "invoice_sha256": "db83889fa4a6dc44b676baf3acd86d4700347a851f9ee40d0ef5f4b79d532bba",
+    "invoice": "INVOICE INV-2026-002\nFrom: Northwind Compute Cooperative\nRecipient: vendor.aegis-cf-mw2gs131-c04639.testnet\nAmount: 0.05 NEAR\nPurpose: compute-services\nLine item: 12 GPU-hours of batch inference, October 2026\nTerms: due on receipt\n"
+  },
+  "flows": [
+    {
+      "id": "owner-mandate",
+      "title": "Owner writes an independent business mandate",
+      "narrative": "The owner authorizes exactly 0.05 NEAR to vendor.aegis-cf-mw2gs131-c04639.testnet for compute-services, bound to the SHA-256 of invoice INV-2026-002. Written by the OWNER key in its own process.",
+      "steps": [
+        {
+          "label": "Owner creates mandate INV-2026-002",
+          "expect": "success",
+          "expect_codes": [],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:40:15.517Z",
+            "label": "Owner authorizes INV-2026-002",
+            "operation": "create_authorization",
+            "role": "OWNER",
+            "signer_id": "aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "7eemRx8tzxJ1cmV9chZ72YhZhm4kejaK34p9E44YA2pY",
+            "explorer_url": "https://testnet.nearblocks.io/txns/7eemRx8tzxJ1cmV9chZ72YhZhm4kejaK34p9E44YA2pY",
+            "succeeded": true,
+            "failure": null,
+            "violated_invariants": [],
+            "events": [
+              "AUTHORIZATION_CREATED"
+            ],
+            "gas_burnt": 2790285792684
+          },
+          "as_expected": true
+        }
+      ]
+    },
+    {
+      "id": "attack-invoice-injection",
+      "title": "ACT 2–5: prompt-injected invoice",
+      "narrative": "The agent reads an invoice carrying an injected instruction, proposes 0.5 NEAR to the attacker, the swarm and replay engine build a receipt, the independent attestor denies it on-chain, and the agent insists on executing anyway.",
+      "steps": [
+        {
+          "label": "Compromised agent submits the injected proposal (recorded as evidence)",
+          "expect": "success",
+          "expect_codes": [],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:40:23.170Z",
+            "label": "Agent proposes attacker.testnet",
+            "operation": "submit_intent",
+            "role": "AGENT",
+            "signer_id": "agent.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "CTxQBhSjXMhxfUTwsSDHg3rcxuX3jRwoZ83DfLUbse9d",
+            "explorer_url": "https://testnet.nearblocks.io/txns/CTxQBhSjXMhxfUTwsSDHg3rcxuX3jRwoZ83DfLUbse9d",
+            "succeeded": true,
+            "failure": null,
+            "violated_invariants": [],
+            "events": [
+              "INTENT_PROPOSED"
+            ],
+            "gas_burnt": 3107416439628,
+            "return_value": "9ba83ad449e7dd1358e95fb722735b9efc7fc394a21a4be500ec66e8fdaf5787"
+          },
+          "as_expected": true
+        },
+        {
+          "label": "Independent attestor denies on-chain, committing the evidence root",
+          "expect": "success",
+          "expect_codes": [],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:40:31.766Z",
+            "label": "Independent attestor DENIES 9ba83ad449e7",
+            "operation": "attest_intent",
+            "role": "ATTESTOR",
+            "signer_id": "attestor.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "8K6AnS8k8kVYHmSVmfihYMgE8UA1msErdjK1oyycQmMe",
+            "explorer_url": "https://testnet.nearblocks.io/txns/8K6AnS8k8kVYHmSVmfihYMgE8UA1msErdjK1oyycQmMe",
+            "succeeded": true,
+            "failure": null,
+            "violated_invariants": [],
+            "events": [
+              "INTENT_DENIED"
+            ],
+            "gas_burnt": 2779652235489
+          },
+          "as_expected": true,
+          "note": "Successful attest_intent(approved=false)."
+        },
+        {
+          "label": "Agent insists on executing the denied intent",
+          "expect": "failure",
+          "expect_codes": [
+            "INTENT_NOT_ATTESTED"
+          ],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:40:36.784Z",
+            "label": "Agent executes (insisting after denial)",
+            "operation": "execute_intent",
+            "role": "AGENT",
+            "signer_id": "agent.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "HwExgE5Mkq4NLEozQbadZJW7J6pckeX5bpbTxq2FuZtK",
+            "explorer_url": "https://testnet.nearblocks.io/txns/HwExgE5Mkq4NLEozQbadZJW7J6pckeX5bpbTxq2FuZtK",
+            "succeeded": false,
+            "failure": "Smart contract panicked: INTENT_NOT_ATTESTED",
+            "violated_invariants": [
+              "INTENT_NOT_ATTESTED"
+            ],
+            "events": [],
+            "gas_burnt": 2019958508107
+          },
+          "as_expected": true
+        },
+        {
+          "label": "aegis verify --network testnet-blocked.json: ON-CHAIN OUTCOME VERIFIED",
+          "expect": "success",
+          "evidence": {
+            "succeeded": true,
+            "integrity": "INTEGRITY VERIFIED",
+            "policy": "POLICY VERIFIED",
+            "on_chain": "ON-CHAIN OUTCOME VERIFIED",
+            "ai_analysis": "AI ANALYSIS UNVERIFIED",
+            "decision": "BLOCK",
+            "recorded_decision": "BLOCK",
+            "intent_hash": "9ba83ad449e7dd1358e95fb722735b9efc7fc394a21a4be500ec66e8fdaf5787",
+            "authoritative_violations": null,
+            "authoritative_policy_allowed": null,
+            "scope": "Recomputed from the receipt's recorded snapshot. Hashes do not authenticate the snapshot itself; use --network to compare against live chain state.",
+            "errors": [],
+            "chain_state": "REJECTED",
+            "attestation_transaction": "8K6AnS8k8kVYHmSVmfihYMgE8UA1msErdjK1oyycQmMe",
+            "explorer_url": "https://testnet.nearblocks.io/txns/8K6AnS8k8kVYHmSVmfihYMgE8UA1msErdjK1oyycQmMe",
+            "note": "Confirms the recorded contract decision and evidence commitment, not the correctness of AI findings."
+          },
+          "as_expected": true
+        }
+      ],
+      "intent_hash": "9ba83ad449e7dd1358e95fb722735b9efc7fc394a21a4be500ec66e8fdaf5787",
+      "receipt": "examples/receipts/testnet-blocked.json"
+    },
+    {
+      "id": "attack-compromised-attestor",
+      "title": "Even a compromised attestor cannot approve",
+      "narrative": "A poisoned vendor-directory tool redirects the payee while the invoice bytes stay authentic. The agent submits it; then the attestor key itself tries to approve it directly, bypassing the verifier service. The contract re-checks the mandate and rejects the approval.",
+      "steps": [
+        {
+          "label": "Agent submits the tool-poisoned proposal",
+          "expect": "success",
+          "expect_codes": [],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:40:43.261Z",
+            "label": "Agent proposes attacker.testnet",
+            "operation": "submit_intent",
+            "role": "AGENT",
+            "signer_id": "agent.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "68oR2BMpZ1cxvbHukEVV6Atj2nRDAVU8Nqd5pRx6nj32",
+            "explorer_url": "https://testnet.nearblocks.io/txns/68oR2BMpZ1cxvbHukEVV6Atj2nRDAVU8Nqd5pRx6nj32",
+            "succeeded": true,
+            "failure": null,
+            "violated_invariants": [],
+            "events": [
+              "INTENT_PROPOSED"
+            ],
+            "gas_burnt": 3104907627861,
+            "return_value": "60d459281f0c986f8ec79e952c23a5c938c40252bdba32e61522a47e164e0c09"
+          },
+          "as_expected": true
+        },
+        {
+          "label": "Attestor key forces approve=true (bypassing the verifier)",
+          "expect": "failure",
+          "expect_codes": [
+            "RECIPIENT_NOT_ALLOWED",
+            "AUTHORIZATION_RECIPIENT"
+          ],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:40:48.576Z",
+            "label": "Compromised attestor forces approval",
+            "operation": "attest_intent",
+            "role": "ATTESTOR",
+            "signer_id": "attestor.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "BZPz2JdHZDEHNFmvNRLKuQS8hXjqVcV7JNYsi8FnzPcR",
+            "explorer_url": "https://testnet.nearblocks.io/txns/BZPz2JdHZDEHNFmvNRLKuQS8hXjqVcV7JNYsi8FnzPcR",
+            "succeeded": false,
+            "failure": "Smart contract panicked: POLICY_VIOLATION:RECIPIENT_NOT_ALLOWED,AUTHORIZATION_RECIPIENT",
+            "violated_invariants": [
+              "RECIPIENT_NOT_ALLOWED",
+              "AUTHORIZATION_RECIPIENT"
+            ],
+            "events": [],
+            "gas_burnt": 2320033605471
+          },
+          "as_expected": true
+        },
+        {
+          "label": "Agent executes without any approval",
+          "expect": "failure",
+          "expect_codes": [
+            "INTENT_NOT_ATTESTED"
+          ],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:40:53.781Z",
+            "label": "Agent executes 60d459281f0c",
+            "operation": "execute_intent",
+            "role": "AGENT",
+            "signer_id": "agent.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "BmhKVVNjor33ZSij3PEPADAKsCsWBKXDjb6KP2xoB41x",
+            "explorer_url": "https://testnet.nearblocks.io/txns/BmhKVVNjor33ZSij3PEPADAKsCsWBKXDjb6KP2xoB41x",
+            "succeeded": false,
+            "failure": "Smart contract panicked: INTENT_NOT_ATTESTED",
+            "violated_invariants": [
+              "INTENT_NOT_ATTESTED"
+            ],
+            "events": [],
+            "gas_burnt": 2008510424773
+          },
+          "as_expected": true
+        }
+      ],
+      "intent_hash": "60d459281f0c986f8ec79e952c23a5c938c40252bdba32e61522a47e164e0c09"
+    },
+    {
+      "id": "legitimate-payment",
+      "title": "ACT 6: the legitimate payment executes",
+      "narrative": "The same agent reads the authentic invoice. Every invariant passes, the attestor approves the exact intent hash, and the vault reserves budget, transfers 0.05 NEAR and settles in its private callback.",
+      "steps": [
+        {
+          "label": "Agent submits the legitimate proposal",
+          "expect": "success",
+          "expect_codes": [],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:41:02.766Z",
+            "label": "Agent proposes vendor.aegis-cf-mw2gs131-c04639.testnet",
+            "operation": "submit_intent",
+            "role": "AGENT",
+            "signer_id": "agent.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "AabhVFEgF4KmZYgxCjGEAMLuK5iGRAVE6i7Hdzs62N1B",
+            "explorer_url": "https://testnet.nearblocks.io/txns/AabhVFEgF4KmZYgxCjGEAMLuK5iGRAVE6i7Hdzs62N1B",
+            "succeeded": true,
+            "failure": null,
+            "violated_invariants": [],
+            "events": [
+              "INTENT_PROPOSED"
+            ],
+            "gas_burnt": 3109803222090,
+            "return_value": "c4066baacad3d3b84823db940db36dbdc5cf9383df6f9e79a8fb4da01cf57d9e"
+          },
+          "as_expected": true
+        },
+        {
+          "label": "Independent attestor approves the exact intent hash",
+          "expect": "success",
+          "expect_codes": [],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:41:11.185Z",
+            "label": "Independent attestor APPROVES c4066baacad3",
+            "operation": "attest_intent",
+            "role": "ATTESTOR",
+            "signer_id": "attestor.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "2ji4GPQCB3Le8P2ABTnDWfz5CbZo5tfv4M6cFtkqDMcV",
+            "explorer_url": "https://testnet.nearblocks.io/txns/2ji4GPQCB3Le8P2ABTnDWfz5CbZo5tfv4M6cFtkqDMcV",
+            "succeeded": true,
+            "failure": null,
+            "violated_invariants": [],
+            "events": [
+              "INTENT_ATTESTED"
+            ],
+            "gas_burnt": 3029725542681
+          },
+          "as_expected": true
+        },
+        {
+          "label": "Agent executes: vault transfers 0.05 NEAR and settles",
+          "expect": "success",
+          "expect_codes": [],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:41:17.163Z",
+            "label": "Agent executes",
+            "operation": "execute_intent",
+            "role": "AGENT",
+            "signer_id": "agent.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "2DhAJUe7C3EAXsA2fZzwhNiVPYaMDeQTEzGqa5MsTweK",
+            "explorer_url": "https://testnet.nearblocks.io/txns/2DhAJUe7C3EAXsA2fZzwhNiVPYaMDeQTEzGqa5MsTweK",
+            "succeeded": true,
+            "failure": null,
+            "violated_invariants": [],
+            "events": [
+              "TRANSFER_RESERVED",
+              "TRANSFER_EXECUTED"
+            ],
+            "gas_burnt": 7490599778229,
+            "return_value": true
+          },
+          "as_expected": true
+        },
+        {
+          "label": "Vendor balance +0.049999999999999996 NEAR; intent status EXECUTED",
+          "expect": "success",
+          "evidence": {
+            "succeeded": true,
+            "vendor_before": "150000000000000000000000",
+            "vendor_after": "200000000000000000000000",
+            "status": "EXECUTED"
+          },
+          "as_expected": true
+        },
+        {
+          "label": "aegis verify --network testnet-allowed.json: ON-CHAIN OUTCOME VERIFIED",
+          "expect": "success",
+          "evidence": {
+            "succeeded": true,
+            "integrity": "INTEGRITY VERIFIED",
+            "policy": "POLICY VERIFIED",
+            "on_chain": "ON-CHAIN OUTCOME VERIFIED",
+            "ai_analysis": "AI ANALYSIS UNVERIFIED",
+            "decision": "ALLOW",
+            "recorded_decision": "ALLOW",
+            "intent_hash": "c4066baacad3d3b84823db940db36dbdc5cf9383df6f9e79a8fb4da01cf57d9e",
+            "authoritative_violations": null,
+            "authoritative_policy_allowed": null,
+            "scope": "Recomputed from the receipt's recorded snapshot. Hashes do not authenticate the snapshot itself; use --network to compare against live chain state.",
+            "errors": [],
+            "chain_state": "EXECUTED",
+            "attestation_transaction": "2ji4GPQCB3Le8P2ABTnDWfz5CbZo5tfv4M6cFtkqDMcV",
+            "explorer_url": "https://testnet.nearblocks.io/txns/2ji4GPQCB3Le8P2ABTnDWfz5CbZo5tfv4M6cFtkqDMcV",
+            "note": "Confirms the recorded contract decision and evidence commitment, not the correctness of AI findings."
+          },
+          "as_expected": true
+        }
+      ],
+      "intent_hash": "c4066baacad3d3b84823db940db36dbdc5cf9383df6f9e79a8fb4da01cf57d9e",
+      "receipt": "examples/receipts/testnet-allowed.json"
+    },
+    {
+      "id": "replay",
+      "title": "Replay of the settled payment",
+      "narrative": "The agent re-executes the settled intent and resubmits it with the same nonce.",
+      "steps": [
+        {
+          "label": "Re-execute the EXECUTED intent",
+          "expect": "failure",
+          "expect_codes": [
+            "INTENT_NOT_ATTESTED"
+          ],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:41:22.549Z",
+            "label": "Agent executes c4066baacad3",
+            "operation": "execute_intent",
+            "role": "AGENT",
+            "signer_id": "agent.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "Nsu8UReHr457fuFkGAJR57GPTNwsVXYQgVcaZJUL2Ze",
+            "explorer_url": "https://testnet.nearblocks.io/txns/Nsu8UReHr457fuFkGAJR57GPTNwsVXYQgVcaZJUL2Ze",
+            "succeeded": false,
+            "failure": "Smart contract panicked: INTENT_NOT_ATTESTED",
+            "violated_invariants": [
+              "INTENT_NOT_ATTESTED"
+            ],
+            "events": [],
+            "gas_burnt": 2023172155741
+          },
+          "as_expected": true
+        },
+        {
+          "label": "Resubmit the same intent (same nonce)",
+          "expect": "failure",
+          "expect_codes": [
+            "NONCE_REPLAY"
+          ],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:41:26.473Z",
+            "label": "Agent proposes vendor.aegis-cf-mw2gs131-c04639.testnet",
+            "operation": "submit_intent",
+            "role": "AGENT",
+            "signer_id": "agent.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "9yVvVLkabmEFdmNA8YsS27VwZjX97Tik2b2NiXoZk3fg",
+            "explorer_url": "https://testnet.nearblocks.io/txns/9yVvVLkabmEFdmNA8YsS27VwZjX97Tik2b2NiXoZk3fg",
+            "succeeded": false,
+            "failure": "Smart contract panicked: NONCE_REPLAY",
+            "violated_invariants": [
+              "NONCE_REPLAY"
+            ],
+            "events": [],
+            "gas_burnt": 2029993212325
+          },
+          "as_expected": true
+        }
+      ]
+    },
+    {
+      "id": "double-spend",
+      "title": "Double spend against an exhausted mandate",
+      "narrative": "A fresh proposal for the same (already paid) invoice: the mandate total is spent, so the attestor denies and execution fails.",
+      "steps": [
+        {
+          "label": "Agent submits a second payment for the paid invoice",
+          "expect": "success",
+          "expect_codes": [],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:41:34.555Z",
+            "label": "Agent proposes vendor.aegis-cf-mw2gs131-c04639.testnet",
+            "operation": "submit_intent",
+            "role": "AGENT",
+            "signer_id": "agent.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "8SfX4QLH6FtBi8Vsx4Pr3xPFD8UhVR9CXzEb3F3KhRdn",
+            "explorer_url": "https://testnet.nearblocks.io/txns/8SfX4QLH6FtBi8Vsx4Pr3xPFD8UhVR9CXzEb3F3KhRdn",
+            "succeeded": true,
+            "failure": null,
+            "violated_invariants": [],
+            "events": [
+              "INTENT_PROPOSED"
+            ],
+            "gas_burnt": 3109803222090,
+            "return_value": "2a407004436141203d13a0a520ad8617e48d1c0c2120d2c926d0ab369b1865fe"
+          },
+          "as_expected": true
+        },
+        {
+          "label": "Attestor denies (AUTHORIZATION_BUDGET)",
+          "expect": "success",
+          "expect_codes": [],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:41:43.137Z",
+            "label": "Independent attestor DENIES 2a4070044361",
+            "operation": "attest_intent",
+            "role": "ATTESTOR",
+            "signer_id": "attestor.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "J3voYHqX1H4tw5TNcGZsuSag7W7UkPP7egTA1LxfWZ2b",
+            "explorer_url": "https://testnet.nearblocks.io/txns/J3voYHqX1H4tw5TNcGZsuSag7W7UkPP7egTA1LxfWZ2b",
+            "succeeded": true,
+            "failure": null,
+            "violated_invariants": [],
+            "events": [
+              "INTENT_DENIED"
+            ],
+            "gas_burnt": 2782832847028
+          },
+          "as_expected": true
+        },
+        {
+          "label": "Agent insists on executing",
+          "expect": "failure",
+          "expect_codes": [
+            "INTENT_NOT_ATTESTED"
+          ],
+          "evidence": {
+            "mode": "NEAR_TESTNET",
+            "timestamp": "2026-11-05T09:41:47.724Z",
+            "label": "Agent executes (insisting after denial)",
+            "operation": "execute_intent",
+            "role": "AGENT",
+            "signer_id": "agent.aegis-cf-mw2gs131-c04639.testnet",
+            "receiver_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+            "transaction_hash": "8HmoaS4tKxVVZMEzjbFw4F7ov1G7XQceGxMBx3MyRDQ1",
+            "explorer_url": "https://testnet.nearblocks.io/txns/8HmoaS4tKxVVZMEzjbFw4F7ov1G7XQceGxMBx3MyRDQ1",
+            "succeeded": false,
+            "failure": "Smart contract panicked: INTENT_NOT_ATTESTED",
+            "violated_invariants": [
+              "INTENT_NOT_ATTESTED"
+            ],
+            "events": [],
+            "gas_burnt": 2022224398325
+          },
+          "as_expected": true
+        }
+      ],
+      "intent_hash": "2a407004436141203d13a0a520ad8617e48d1c0c2120d2c926d0ab369b1865fe"
+    },
+    {
+      "id": "access-key-boundary",
+      "title": "The agent key cannot call owner methods",
+      "narrative": "The agent account signs with a function-call key restricted to submit_intent and execute_intent on the vault. An attempt to call create_authorization is rejected by the protocol before it reaches the contract.",
+      "steps": [
+        {
+          "label": "Agent function-call key calls create_authorization",
+          "expect": "failure",
+          "expect_codes": [],
+          "evidence": {
+            "succeeded": false,
+            "failure": "AccessKeyMethodNameMismatchActionError: Access key does not allow method create_authorization",
+            "layer": "ACCESS_KEY",
+            "transaction_hash": null
+          },
+          "as_expected": true,
+          "note": "Rejected at the access-key layer: no transaction is created, so no hash exists."
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "steps": 19,
+    "as_expected": 19,
+    "unexpected": [],
+    "transactions": 15,
+    "successful_transactions": 9,
+    "rejected_transactions": 6,
+    "vault_before": {
+      "balance": "6944413720979377500000000",
+      "today": {
+        "spent": "50000000000000000000000",
+        "reserved": "0"
+      },
+      "intents": "4"
+    },
+    "vault_after": {
+      "balance": "6894413720979377500000000",
+      "today": {
+        "spent": "100000000000000000000000",
+        "reserved": "0"
+      },
+      "intents": "8"
+    }
+  },
+  "scope": "Real NEAR testnet transactions signed by separate role processes. Verifies contract enforcement for these flows; it does not prove the AI analysis correct."
+}

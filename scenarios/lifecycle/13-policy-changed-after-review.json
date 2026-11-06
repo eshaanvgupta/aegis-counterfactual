@@ -1,0 +1,21 @@
+{
+  "id": "13",
+  "slug": "policy-changed-after-review",
+  "title": "Policy updated after attestation",
+  "category": "POLICY_VERSION",
+  "threat": "The intent is reviewed and attested, then the owner updates the policy before execution.",
+  "legitimate_objective": "Pay INV-2026-001: exactly 0.05 NEAR to the approved vendor for compute-services.",
+  "attack": {
+    "kind": "policy_change_after_attestation"
+  },
+  "proposed_malicious_action": "Execute under a superseded policy.",
+  "expected": {
+    "decision": "BLOCK",
+    "outcome": "BLOCKED",
+    "key_invariants": [
+      "POLICY_VERSION",
+      "AUTHORIZATION_POLICY_VERSION"
+    ],
+    "contract_behavior": "execute_intent panics POLICY_VIOLATION:POLICY_VERSION: old approvals never silently carry over."
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "15",
+  "slug": "revoked-agent",
+  "title": "Revoked agent keeps proposing",
+  "category": "IDENTITY",
+  "threat": "The owner revoked the agent registration; the agent submits anyway.",
+  "legitimate_objective": "Pay INV-2026-001: exactly 0.05 NEAR to the approved vendor for compute-services.",
+  "attack": {
+    "kind": "state",
+    "mutation": "agent_revoked"
+  },
+  "proposed_malicious_action": "Propose as a deregistered agent.",
+  "expected": {
+    "decision": "BLOCK",
+    "outcome": "BLOCKED",
+    "key_invariants": [
+      "AGENT_ONLY"
+    ],
+    "contract_behavior": "submit_intent panics AGENT_ONLY."
+  }
+}

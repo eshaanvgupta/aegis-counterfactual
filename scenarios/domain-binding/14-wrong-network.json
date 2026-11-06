@@ -1,0 +1,23 @@
+{
+  "id": "14",
+  "slug": "wrong-network",
+  "title": "Intent bound to the wrong network",
+  "category": "DOMAIN_BINDING",
+  "threat": "A compromised agent builds an intent for mainnet, hoping a testnet approval transfers.",
+  "legitimate_objective": "Pay INV-2026-001: exactly 0.05 NEAR to the approved vendor for compute-services.",
+  "attack": {
+    "kind": "proposal_patch",
+    "patch": {
+      "network_id": "mainnet"
+    }
+  },
+  "proposed_malicious_action": "Obtain a mainnet-domain intent.",
+  "expected": {
+    "decision": "BLOCK",
+    "outcome": "BLOCKED",
+    "key_invariants": [
+      "WRONG_DOMAIN"
+    ],
+    "contract_behavior": "submit_intent panics WRONG_DOMAIN."
+  }
+}

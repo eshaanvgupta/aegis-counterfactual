@@ -1,0 +1,65 @@
+{
+  "encoding": "Borsh IntentFields v1; field order documented in CONTRACT_API.md",
+  "vectors": [
+    {
+      "name": "native-payment",
+      "intent": {
+        "network_id": "testnet",
+        "vault_id": "vault.testnet",
+        "agent_id": "agent.testnet",
+        "authorization_id": "auth-1",
+        "recipient": "vendor.testnet",
+        "asset": "NEAR",
+        "amount": "50000000000000000000000",
+        "action": "native_transfer",
+        "nonce": "1",
+        "expires_at_ms": "800000",
+        "policy_version": "1",
+        "invoice_fingerprint": "abababababababababababababababababababababababababababababababab",
+        "purpose_id": "INV-2026-001"
+      },
+      "borsh_hex": "07000000746573746e65740d0000007661756c742e746573746e65740d0000006167656e742e746573746e657406000000617574682d310e00000076656e646f722e746573746e6574040000004e4541520000407ba5f06381960a0000000000000f0000006e61746976655f7472616e73666572010000000000000000350c0000000000010000000000000040000000616261626162616261626162616261626162616261626162616261626162616261626162616261626162616261626162616261626162616261626162616261620c000000494e562d323032362d303031",
+      "sha256": "997016077e943473b476c7b6c6cf613d79c03c93d0fc9a07180c25104b47d85d"
+    },
+    {
+      "name": "u128-boundary",
+      "intent": {
+        "network_id": "testnet",
+        "vault_id": "vault.testnet",
+        "agent_id": "agent.testnet",
+        "authorization_id": "auth-1",
+        "recipient": "vendor.testnet",
+        "asset": "NEAR",
+        "amount": "340282366920938463463374607431768211455",
+        "action": "native_transfer",
+        "nonce": "18446744073709551615",
+        "expires_at_ms": "800000",
+        "policy_version": "1",
+        "invoice_fingerprint": "abababababababababababababababababababababababababababababababab",
+        "purpose_id": "INV-2026-001"
+      },
+      "borsh_hex": "07000000746573746e65740d0000007661756c742e746573746e65740d0000006167656e742e746573746e657406000000617574682d310e00000076656e646f722e746573746e6574040000004e454152ffffffffffffffffffffffffffffffff0f0000006e61746976655f7472616e73666572ffffffffffffffff00350c0000000000010000000000000040000000616261626162616261626162616261626162616261626162616261626162616261626162616261626162616261626162616261626162616261626162616261620c000000494e562d323032362d303031",
+      "sha256": "a6cae3098d1f6f7a22347bec807662f0a7a48120a849bc833f3177333a1cfce6"
+    },
+    {
+      "name": "unicode-purpose",
+      "intent": {
+        "network_id": "testnet",
+        "vault_id": "vault.testnet",
+        "agent_id": "agent.testnet",
+        "authorization_id": "auth-1",
+        "recipient": "vendor.testnet",
+        "asset": "NEAR",
+        "amount": "50000000000000000000000",
+        "action": "native_transfer",
+        "nonce": "2",
+        "expires_at_ms": "800000",
+        "policy_version": "1",
+        "invoice_fingerprint": "abababababababababababababababababababababababababababababababab",
+        "purpose_id": "invoice-\u20b9-\u03b1"
+      },
+      "borsh_hex": "07000000746573746e65740d0000007661756c742e746573746e65740d0000006167656e742e746573746e657406000000617574682d310e00000076656e646f722e746573746e6574040000004e4541520000407ba5f06381960a0000000000000f0000006e61746976655f7472616e73666572020000000000000000350c0000000000010000000000000040000000616261626162616261626162616261626162616261626162616261626162616261626162616261626162616261626162616261626162616261626162616261620e000000696e766f6963652de282b92dceb1",
+      "sha256": "99ee95977f6be33760c595bc111151ba67888a9189c7035690ba2a1d07ee8cfa"
+    }
+  ]
+}

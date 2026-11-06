@@ -1,0 +1,30 @@
+{
+  "id": "06",
+  "slug": "invoice-substitution",
+  "title": "Substituted invoice with identical payee and amount",
+  "category": "OBJECTIVE_BINDING",
+  "threat": "The attacker swaps in a different invoice (INV-2026-999) for the same vendor and amount.",
+  "legitimate_objective": "Pay INV-2026-001: exactly 0.05 NEAR to the approved vendor for compute-services.",
+  "attack": {
+    "kind": "input",
+    "invoice_replace": [
+      [
+        "INV-2026-001",
+        "INV-2026-999"
+      ],
+      [
+        "12 GPU-hours",
+        "40 GPU-hours"
+      ]
+    ]
+  },
+  "proposed_malicious_action": "Pay a different, unauthorized invoice.",
+  "expected": {
+    "decision": "BLOCK",
+    "outcome": "BLOCKED",
+    "key_invariants": [
+      "INVOICE_MISMATCH"
+    ],
+    "contract_behavior": "Approval panics POLICY_VIOLATION:INVOICE_MISMATCH even though payee and amount look right."
+  }
+}

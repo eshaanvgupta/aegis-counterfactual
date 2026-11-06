@@ -1,0 +1,75 @@
+{
+  "network_id": "testnet",
+  "vault_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+  "deployed_at": "2026-11-05T09:03:16.460Z",
+  "transaction_hash": "48ukvVxfSxUbDu5HbfXCshbDiDcKWJ4DogFLGSC1Km48",
+  "explorer_url": "https://testnet.nearblocks.io/txns/48ukvVxfSxUbDu5HbfXCshbDiDcKWJ4DogFLGSC1Km48",
+  "code_hash": "AAVfbPT7XAg3FPQMpZyeTX11Zxh7CKH1rPpzkGb8MMuj",
+  "wasm_sha256": "8827d259dd6f2c520e09a60c468da5752ddad23b15f84795d0a6c591e4be58d2",
+  "wasm_bytes": 239269,
+  "principals": {
+    "owner": "aegis-cf-mw2gs131-c04639.testnet",
+    "agent": "agent.aegis-cf-mw2gs131-c04639.testnet",
+    "attestor": "attestor.aegis-cf-mw2gs131-c04639.testnet"
+  },
+  "policy": {
+    "version": "1",
+    "allowed_recipients": [
+      "vendor.aegis-cf-mw2gs131-c04639.testnet"
+    ],
+    "max_transaction": "100000000000000000000000",
+    "daily_limit": "250000000000000000000000",
+    "allowed_actions": [
+      "native_transfer"
+    ],
+    "expires_at_ms": "1806451200000"
+  },
+  "vault_status_after_init": {
+    "contract_version": "1.0.0",
+    "network_id": "testnet",
+    "vault_id": "vault.aegis-cf-mw2gs131-c04639.testnet",
+    "owner_id": "aegis-cf-mw2gs131-c04639.testnet",
+    "agent_id": "agent.aegis-cf-mw2gs131-c04639.testnet",
+    "attestor_id": "attestor.aegis-cf-mw2gs131-c04639.testnet",
+    "agent_generation": "0",
+    "attestor_generation": "0",
+    "paused": false,
+    "balance": "6997952022397652500000000",
+    "storage_usage": "253577",
+    "storage_cost": "2535770000000000000000000",
+    "available": "4412182022397652500000000",
+    "reserved": "0",
+    "pending_transfers": "0",
+    "today": {
+      "spent": "0",
+      "reserved": "0"
+    },
+    "daily_limit": "250000000000000000000000",
+    "policy_version": "1",
+    "authorization_count": "0",
+    "intent_count": "0",
+    "intents_today": 0,
+    "audit_count": "1"
+  },
+  "verification": "Compare code_hash with base58(sha256(artifacts/aegis_vault.wasm)); query vault.aegis-cf-mw2gs131-c04639.testnet on any testnet RPC.",
+  "upgrades": [
+    {
+      "at": "2026-11-05T09:36:47.928Z",
+      "transaction_hash": "FB6AtsHRJtZKd7NaQXRkhD61yDpLqp5PKg4Li1iDFkk1",
+      "explorer_url": "https://testnet.nearblocks.io/txns/FB6AtsHRJtZKd7NaQXRkhD61yDpLqp5PKg4Li1iDFkk1",
+      "previous_code_hash": "9DPAZnduQqT5z837MjrRadR5iU6aH1WLyw31ipaP9n1k",
+      "code_hash": "6W4c5tmwA5t5Azpu25DSRWkzTMU1SwJZdBbBjhgcVVkN",
+      "wasm_sha256": "51bc5aaafa41a51baabb77974e4465c71fb46041260f3ac153eb65c4c0bfc3b3",
+      "reason": "Rebuild with --cfg near so contract panics surface their messages on-chain"
+    },
+    {
+      "at": "2026-11-05T09:39:47.164Z",
+      "transaction_hash": "FypzJGy3BjKcZMvMKQ7UeU7FAGmPgzYphZvDWfCjjLmm",
+      "explorer_url": "https://testnet.nearblocks.io/txns/FypzJGy3BjKcZMvMKQ7UeU7FAGmPgzYphZvDWfCjjLmm",
+      "previous_code_hash": "6W4c5tmwA5t5Azpu25DSRWkzTMU1SwJZdBbBjhgcVVkN",
+      "code_hash": "AAVfbPT7XAg3FPQMpZyeTX11Zxh7CKH1rPpzkGb8MMuj",
+      "wasm_sha256": "8827d259dd6f2c520e09a60c468da5752ddad23b15f84795d0a6c591e4be58d2",
+      "reason": "Rebuild with --cfg near so contract panics surface their messages on-chain"
+    }
+  ]
+}

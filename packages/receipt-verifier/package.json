@@ -1,0 +1,9 @@
+{
+  "name": "@aegis/receipt-verifier",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Independent TypeScript verifier for AEGIS Counterfactual Verification Receipts (browser and Node).",
+  "exports": "./src/index.ts",
+  "dependencies": { "@noble/hashes": "2.2.0" }
+}

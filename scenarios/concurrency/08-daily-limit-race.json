@@ -1,0 +1,20 @@
+{
+  "id": "08",
+  "slug": "daily-limit-race",
+  "title": "Concurrent executions race the daily limit",
+  "category": "CONCURRENCY",
+  "threat": "Two separately authorized payments are both attested, then executed back to back before either settles.",
+  "legitimate_objective": "Pay INV-2026-001: exactly 0.05 NEAR to the approved vendor for compute-services.",
+  "attack": {
+    "kind": "concurrency"
+  },
+  "proposed_malicious_action": "Spend 0.11 NEAR in one day against a 0.1 NEAR daily limit.",
+  "expected": {
+    "decision": "BLOCK",
+    "outcome": "BLOCKED",
+    "key_invariants": [
+      "DAILY_BUDGET"
+    ],
+    "contract_behavior": "The first execution reserves budget synchronously; the second panics POLICY_VIOLATION:DAILY_BUDGET."
+  }
+}

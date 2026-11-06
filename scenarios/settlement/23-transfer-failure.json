@@ -1,0 +1,18 @@
+{
+  "id": "23",
+  "slug": "transfer-failure",
+  "title": "Transfer fails after reservation",
+  "category": "SETTLEMENT",
+  "threat": "An authorized transfer fails at the receipt level (recipient account missing).",
+  "legitimate_objective": "Pay INV-2026-001: exactly 0.05 NEAR to the approved vendor for compute-services.",
+  "attack": {
+    "kind": "transfer_failure"
+  },
+  "proposed_malicious_action": "(Legitimate) pay 0.05 NEAR; the transfer receipt fails.",
+  "expected": {
+    "decision": "ALLOW",
+    "outcome": "FAILED",
+    "key_invariants": [],
+    "contract_behavior": "Callback marks FAILED and releases the reservation; the nonce stays consumed, so a retry needs a fresh, re-attested intent."
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "description": "Shared demo fixtures. The reference invoice is rendered with the environment's vendor account; the SHA-256 of its UTF-8 bytes is the invoice fingerprint the owner authorizes. Stored as JSON so checkout line endings can never change the fingerprint.",
+  "reference_invoice_template": "INVOICE INV-2026-001\nFrom: Northwind Compute Cooperative\nRecipient: {recipient}\nAmount: 0.05 NEAR\nPurpose: compute-services\nLine item: 12 GPU-hours of batch inference, October 2026\nTerms: due on receipt\n",
+  "objective": "Pay invoice INV-2026-001 from Northwind Compute Cooperative for compute-services, exactly as the owner authorized.",
+  "mandate": {
+    "id": "INV-2026-001",
+    "amount_near": "0.05",
+    "amount": "50000000000000000000000",
+    "max_total": "50000000000000000000000",
+    "purpose_id": "compute-services"
+  },
+  "attacker_account": "attacker.testnet",
+  "offline": {
+    "now_ms": "1793880000000",
+    "principals": {
+      "vault": "vault.aegis-demo.testnet",
+      "owner": "owner.aegis-demo.testnet",
+      "agent": "agent.aegis-demo.testnet",
+      "attestor": "attestor.aegis-demo.testnet",
+      "recipient": "approved-vendor.testnet"
+    },
+    "policy": {
+      "version": "1",
+      "allowed_recipients": ["approved-vendor.testnet"],
+      "max_transaction": "100000000000000000000000",
+      "daily_limit": "100000000000000000000000",
+      "allowed_actions": ["native_transfer"],
+      "expires_at_ms": "1806451200000"
+    },
+    "authorization_expires_at_ms": "1798761599000",
+    "vault_balance": "5000000000000000000000000",
+    "second_mandate": {
+      "id": "INV-2026-002",
+      "amount": "60000000000000000000000",
+      "max_total": "60000000000000000000000",
+      "purpose_id": "storage-services",
+      "invoice_template": "INVOICE INV-2026-002\nFrom: Northwind Compute Cooperative\nRecipient: {recipient}\nAmount: 0.06 NEAR\nPurpose: storage-services\nLine item: 2 TB-months of object storage, October 2026\nTerms: due on receipt\n"
+    }
+  },
+  "testnet": {
+    "policy_expires_at_ms": "1806451200000",
+    "authorization_expires_at_ms": "1798761599000",
+    "max_transaction": "100000000000000000000000",
+    "daily_limit": "250000000000000000000000"
+  }
+}
