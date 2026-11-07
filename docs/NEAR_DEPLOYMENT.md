@@ -25,7 +25,7 @@
 | ATTESTOR | `attestor.aegis-cf-mw2gs131-c04639.testnet` | **function-call key**: receiver = vault, method `attest_intent`, 0.2 NEAR gas allowance |
 | RECIPIENT | `vendor.aegis-cf-mw2gs131-c04639.testnet` | the only allow-listed payee |
 
-Public keys are recorded in `artifacts/testnet-accounts.json`. Private keys exist only in the git-ignored `runtime/dev-credentials/`.
+Public keys are recorded in `artifacts/testnet-accounts.json`. Development private keys stay in the git-ignored `runtime/dev-credentials/`; production deployments inject one role-specific key into each service from an operator-managed secret source.
 
 ## Verify the deployment yourself
 

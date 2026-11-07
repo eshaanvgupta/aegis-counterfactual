@@ -73,10 +73,13 @@ test('live contract probe is judged by the deployed NEAR vault', async ({ page }
   await expect(page.getByText('canonical hash parity')).toBeVisible();
   // The authorized invoice is policy-clear on-chain.
   await page.getByRole('button', { name: 'Authorized invoice' }).click();
+  await expect(page.getByText('Evaluating on the deployed contract…')).toBeVisible();
   await expect(page.getByText(/Deployed contract: policy-clear/)).toBeVisible({ timeout: 45_000 });
   // A swapped invoice with the same payee and amount is caught by the fingerprint binding.
   await page.getByRole('button', { name: 'Swapped invoice' }).click();
-  await expect(page.getByText(/BLOCKED by 1 invariant/)).toBeVisible({ timeout: 45_000 });
+  await expect(page.getByText('Evaluating on the deployed contract…')).toBeVisible();
+  await expect(page.getByText(/BLOCKED by 1 authorization check/)).toBeVisible({ timeout: 45_000 });
   await expect(page.locator('.verdict')).toContainText('INVOICE_MISMATCH');
+  await expect(page.locator('.check.fail').filter({ hasText: 'INVOICE_MISMATCH' })).toContainText('must equal the owner-authorized fingerprint');
   expect(errors).toEqual([]);
 });

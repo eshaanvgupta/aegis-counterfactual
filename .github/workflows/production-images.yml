@@ -28,7 +28,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  validate-production-model:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: 24 }
+      - name: Validate configuration contract and Compose model
+        env:
+          AEGIS_PUBLIC_ORIGIN: https://ci.aegis.invalid
+          AEGIS_OWNER_TOKEN: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          AEGIS_VERIFIER_TOKEN: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+          AEGIS_IMAGE_TAG: ci
+          NEAR_VAULT_ID: vault.ci.testnet
+          NEAR_OWNER_ID: owner.ci.testnet
+          NEAR_AGENT_ID: agent.ci.testnet
+          NEAR_ATTESTOR_ID: attestor.ci.testnet
+          NEAR_RECIPIENT_ID: recipient.ci.testnet
+        run: |
+          export NEAR_OWNER_PRIVATE_KEY="ed25519:$(printf '1%.0s' {1..88})"
+          export NEAR_AGENT_PRIVATE_KEY="ed25519:$(printf '2%.0s' {1..88})"
+          export NEAR_ATTESTOR_PRIVATE_KEY="ed25519:$(printf '3%.0s' {1..88})"
+          node scripts/validate-production.mjs
+          docker compose -f compose.production.yml config --quiet
+
   build-and-publish:
+    needs: validate-production-model
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false

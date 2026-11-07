@@ -79,6 +79,13 @@ On 2026-11-07 the stack was built from a clean checkout on Ubuntu 24.04 (Docker 
 
 Each publish also receives an immutable `sha-<full commit>` tag. Set `AEGIS_IMAGE_PREFIX` to a mirrored registry prefix when promoting the same artifacts into another environment.
 
+For a repeatable rollout, set `AEGIS_IMAGE_TAG=sha-<full-commit>` in the protected environment file, then deploy the exact published pair without rebuilding:
+
+```bash
+docker compose --env-file /secure/aegis.production.env -f compose.production.yml pull
+docker compose --env-file /secure/aegis.production.env -f compose.production.yml up -d --no-build
+```
+
 ## Operational controls
 
 - Terminate TLS before the gateway and set `AEGIS_PUBLIC_ORIGIN` to that exact HTTPS origin.

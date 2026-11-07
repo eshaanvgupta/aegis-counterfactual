@@ -6,13 +6,13 @@
 
 AEGIS is a security layer for AI agents that move money on NEAR. An AI payment agent reads untrusted invoices, tool results and messages, then *proposes* a payment. It never decides. A NEAR smart-contract vault re-checks every proposal against a business mandate that the owner wrote independently, and pays only on an exact match.
 
-Before anything reaches the vault, a **counterfactual replay engine** runs the same agent and the same mandate on two inputs, the authorized invoice and the attacker-controlled one. It then mutates every field to show which invariant catches each attack. Three specialist investigators explain what happened, and the evidence is sealed into a **Counterfactual Verification Receipt** (CVR). The CVR is bound to the exact intent hash, and its Merkle root is committed on-chain. Anyone can verify a CVR independently, from the command line or in the browser.
+After a proposal is recorded and before it can be attested or executed, a **counterfactual replay engine** runs the same agent and the same mandate on two inputs, the authorized invoice and the attacker-controlled one. It then mutates every field to show which invariant catches each attack. Three specialist investigators explain what happened, and the evidence is sealed into a **Counterfactual Verification Receipt** (CVR). The CVR is bound to the exact intent hash, and its Merkle root is committed on-chain. Anyone can verify a CVR independently, from the command line or in the browser.
 
 > Primary track: **AI Security & Defense**. Live on native NEAR testnet. Fully reproducible with deterministic inference and no paid API.
 
 ## Try it in 60 seconds, with no install
 
-1. Open the **[Live Contract Probe](https://eshaanvgupta.github.io/aegis-counterfactual/#probe)**. It starts with a prompt-injected invoice. The in-browser agent falls for it and proposes paying `attacker.testnet` 0.5 NEAR. The **deployed Rust contract** answers *BLOCKED by 7 invariants* at a live block height.
+1. Open the **[Live Contract Probe](https://eshaanvgupta.github.io/aegis-counterfactual/#probe)**. It starts with a prompt-injected invoice. The in-browser agent falls for it and proposes paying `attacker.testnet` 0.5 NEAR. The **deployed Rust contract** answers *BLOCKED by 7 authorization checks* at a live block height.
 2. Click **Authorized invoice**. The same contract answers *policy-clear* for the owner's exact mandate.
 3. Type anything into the invoice, or try *Invisible directive*, *Poisoned tool output*, *Spoofed finance email*, *Swapped invoice* or *Wrong purpose*. Every edit goes to the contract's `check_intent` view on NEAR testnet. Your browser independently re-derives the canonical intent hash and every policy check, and shows that it agrees with the chain. A ready-made `curl` command reproduces each verdict from a terminal.
 4. Click **Demo** for the 8-step story of the recorded testnet run: injection, compromise, replay, verdict, on-chain block, and legitimate settlement.
@@ -90,7 +90,7 @@ pnpm dev                      # full workstation on a local vault → http://127
 
 | Do this | See this |
 | --- | --- |
-| `pnpm dev`, then **Agent Command → Injected invoice** | The agent proposes paying `attacker.testnet`. The vault blocks it with `RECIPIENT_NOT_ALLOWED`, `AUTHORIZATION_RECIPIENT` and more, and the run produces a signed receipt. |
+| `pnpm dev`, then **Agent Command → Injected invoice** | The agent proposes paying `attacker.testnet`. The vault blocks it with `RECIPIENT_NOT_ALLOWED`, `AUTHORIZATION_RECIPIENT` and more, and the run produces an independently verifiable receipt. |
 | **Attack Laboratory → Run all scenarios** | 23 scenarios across 18 threat categories, every outcome as declared. |
 | `pnpm demo:offline` | Writes raw results for all 23 scenarios to `artifacts/benchmark-offline.json`. |
 | `pnpm verify:receipts` | Re-verifies every receipt in `examples/receipts/`. |
@@ -100,7 +100,7 @@ pnpm dev                      # full workstation on a local vault → http://127
 
 ## Deploy it as a product
 
-AEGIS ships a production stack: a server-rendered Next.js console, three role-isolated FastAPI services (agent, independent verifier, owner) and a hardened nginx gateway. The containers are read-only and run unprivileged with all capabilities dropped. Service-to-service traffic stays on an internal backend network, with a separate egress path for NEAR RPC, and every container exposes health and readiness probes. CI builds SBOM- and provenance-attested images on every change.
+AEGIS ships a production stack: a server-backed Next.js console, three role-isolated FastAPI services (agent, independent verifier, owner) and a hardened nginx gateway. The containers are read-only and run unprivileged with all capabilities dropped. Service-to-service traffic stays on an internal backend network, with a separate egress path for NEAR RPC, and every container exposes health and readiness probes. CI builds SBOM- and provenance-attested images on every production-path change.
 
 ```bash
 node scripts/validate-production.mjs /secure/aegis.production.env   # validates config without printing secrets
@@ -125,7 +125,7 @@ The evidence matrix writes `artifacts/testnet-evidence.json` and `examples/recei
 
 ## Any model, same guarantee
 
-The reference agent is deterministic and susceptible to attack by design: it obeys any instruction it finds, including invisible Unicode text. That makes it a reproducible worst-case agent. If the boundary holds against an agent that falls for every attack, it holds against any model. Production deployments can plug in a model with `LLM_PROVIDER=ollama|openai|openrouter|nearai`. Model output is schema-validated and fails closed, and paid providers require an explicit operator opt-in (`AEGIS_ALLOW_PAID_LLM=true`).
+The reference agent is deterministic and susceptible to attack by design: it obeys any instruction it finds, including invisible Unicode text. That makes it a reproducible worst-case agent. The authorization boundary is model-independent for the bound fields and supported payment path: every model proposal passes through the same vault checks. Production deployments can plug in a model with `LLM_PROVIDER=ollama|openai|openrouter|nearai`. Model output is schema-validated and fails closed, and paid providers require an explicit operator opt-in (`AEGIS_ALLOW_PAID_LLM=true`).
 
 ## Repository map
 
@@ -148,7 +148,7 @@ docs/                         architecture, threat model, security review, produ
 ## Security posture
 
 * **Domain-bound.** Every intent is bound to the network and the vault account, and the release contract initializes only on `.testnet` accounts.
-* **No secrets in the repository.** Credentials live in the git-ignored `runtime/` folder or a managed secret store. `.env.example` contains no values.
+* **No secrets in the repository.** Credentials live in the git-ignored `runtime/` folder or a managed secret store. `.env.example` contains non-secret defaults and empty credential fields.
 * **Bounded storage and gas.** A daily proposal quota (64), an audit ring (128), and caps on mandates and recipients. The storage-backing balance is never spendable.
 * **Adversarially reviewed.** All six findings from the internal adversarial review are closed with regression tests and testnet evidence ([Security review](docs/SECURITY_REVIEW.md)).
 * **Clear authority model.** Governance of the owner and upgrade authority, with a mainnet promotion path, is defined in [Security boundaries and production controls](docs/PRODUCTION_CONTROLS.md).

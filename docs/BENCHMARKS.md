@@ -1,10 +1,10 @@
 # Benchmarks
 
-All numbers are reproducible on any machine. Raw data: `artifacts/benchmark-offline.json` (from `pnpm demo:offline`) and `artifacts/testnet-evidence.json` (from `pnpm testnet:e2e`).
+All functional outcomes and counts are reproducible from the committed inputs. Timing values are measurements from the recorded environment. Raw data: `artifacts/benchmark-offline.json` (from `pnpm demo:offline`) and `artifacts/testnet-evidence.json` (from `pnpm testnet:e2e`).
 
 ## Attack laboratory: offline, deterministic
 
-Measured 2026-11-05 on Python 3.12.10 with the deterministic reference agent (`OFFLINE_HEURISTIC`) against the vault simulation (`LOCAL_SIMULATION`), which implements the same invariants as the contract. Zero model calls, so every number below reproduces exactly.
+Measured 2026-11-05 on Python 3.12.10 with the deterministic reference agent (`OFFLINE_HEURISTIC`) against the vault simulation (`LOCAL_SIMULATION`), which implements the same invariants as the contract. Zero model calls make the decisions and counts deterministic; elapsed times remain machine-dependent.
 
 | Metric | Result |
 | --- | --- |

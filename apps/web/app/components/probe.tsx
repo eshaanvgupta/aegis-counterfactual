@@ -9,26 +9,26 @@ import { near, short } from '../lib/format';
 import { AccountLink, Badge, Checks, Empty, Hash, InvoiceView, Panel, TxLink, Verdict } from './ui';
 
 const DETAIL: Record<string, string> = {
-  VAULT_PAUSED: 'The owner has not paused the vault.',
-  WRONG_DOMAIN: 'The intent is bound to NEAR testnet and to this vault account.',
-  AGENT_NOT_REGISTERED: 'The proposing agent is the registered agent.',
-  UNSUPPORTED_ACTION: 'Only native NEAR transfers are permitted.',
-  RECIPIENT_NOT_ALLOWED: 'The recipient is on the owner policy allowlist.',
-  MAX_TRANSACTION: 'The amount is positive and within the per-transaction cap.',
-  POLICY_VERSION: 'The intent targets the current policy version.',
-  INTENT_EXPIRED: 'The intent and the policy are unexpired.',
-  AUTHORIZATION_NOT_FOUND: 'The referenced owner mandate exists.',
-  AUTHORIZATION_REVOKED: 'The mandate has not been revoked.',
-  AUTHORIZATION_EXPIRED: 'The mandate is unexpired and outlives the intent.',
-  AUTHORIZATION_PRINCIPAL: 'The mandate names this owner and this agent.',
-  AUTHORIZATION_POLICY_VERSION: 'The mandate was written under the current policy.',
-  AUTHORIZATION_RECIPIENT: 'The recipient equals the mandate recipient.',
-  AUTHORIZATION_AMOUNT: 'The amount equals the mandate amount exactly.',
-  AUTHORIZATION_ACTION: 'Asset and action equal the mandate.',
-  INVOICE_MISMATCH: 'The SHA-256 of the invoice equals the authorized invoice fingerprint.',
-  PURPOSE_MISMATCH: 'The business purpose equals the mandate purpose.',
-  AUTHORIZATION_BUDGET: 'The mandate budget has room for this amount.',
-  DAILY_BUDGET: 'The vault daily limit has room for this amount.',
+  VAULT_PAUSED: 'The vault must be active rather than owner-paused.',
+  WRONG_DOMAIN: 'The network and vault account must match the deployed authorization domain.',
+  AGENT_NOT_REGISTERED: 'The proposer must be the currently registered agent.',
+  UNSUPPORTED_ACTION: 'The asset and action must be an authorized native NEAR transfer.',
+  RECIPIENT_NOT_ALLOWED: 'The recipient must appear on the owner policy allowlist.',
+  MAX_TRANSACTION: 'The amount must be positive and within the per-transaction cap.',
+  POLICY_VERSION: 'The intent must target the current policy version.',
+  INTENT_EXPIRED: 'The intent and policy must remain unexpired.',
+  AUTHORIZATION_NOT_FOUND: 'The referenced owner mandate must exist.',
+  AUTHORIZATION_REVOKED: 'The owner mandate must remain active.',
+  AUTHORIZATION_EXPIRED: 'The mandate must be unexpired and outlive the intent.',
+  AUTHORIZATION_PRINCIPAL: 'The mandate must name the current owner and registered agent.',
+  AUTHORIZATION_POLICY_VERSION: 'The mandate must match the current policy version.',
+  AUTHORIZATION_RECIPIENT: 'The recipient must exactly match the mandate recipient.',
+  AUTHORIZATION_AMOUNT: 'The amount must exactly match the mandate amount.',
+  AUTHORIZATION_ACTION: 'The asset and action must exactly match the mandate.',
+  INVOICE_MISMATCH: 'The invoice SHA-256 must equal the owner-authorized fingerprint.',
+  PURPOSE_MISMATCH: 'The business purpose must exactly match the mandate purpose.',
+  AUTHORIZATION_BUDGET: 'The mandate budget must have room for this amount.',
+  DAILY_BUDGET: 'The daily vault budget must have room for this amount.',
 };
 
 function presets(invoice: string, attacker: string): Record<string, { label: string; invoice: string; context: string }> {
@@ -93,8 +93,19 @@ export function LiveProbe() {
     });
   }, [invoice, context, chain, record, mandateId]);
 
+  useEffect(() => {
+    sequence.current += 1;
+    setResult(null);
+    setError('');
+    setBusy(false);
+  }, [proposal]);
+
   const evaluate = useCallback(async () => {
-    if (!proposal?.intent || !chain || !record) return;
+    if (!proposal?.intent || !chain || !record) {
+      setResult(null);
+      setBusy(false);
+      return;
+    }
     const run = ++sequence.current;
     setBusy(true); setError('');
     const intent = proposal.intent;
@@ -110,7 +121,10 @@ export function LiveProbe() {
       };
       if (run === sequence.current) setResult({ intent, contract, hash, local: localViolations(intent, snapshot), localHash: intentHash(intent), at: Date.now() });
     } catch (e) {
-      if (run === sequence.current) setError(e instanceof Error ? e.message : String(e));
+      if (run === sequence.current) {
+        setResult(null);
+        setError(e instanceof Error ? e.message : String(e));
+      }
     } finally {
       if (run === sequence.current) setBusy(false);
     }
@@ -140,8 +154,8 @@ export function LiveProbe() {
     <>
       {!result ? <Verdict decision="WARN" title="Evaluating on the deployed contract…" detail="Sending the agent's proposal to the vault's check_intent view on NEAR testnet." />
         : executable
-          ? <Verdict decision="ALLOW" title="Deployed contract: policy-clear — this exact payment is eligible for attestation and execution" detail={`All ${ORDER.length} invariants pass on-chain for mandate ${result.intent.authorization_id}. The vault would still require the independent attestor's approval of this intent hash before moving funds.`} />
-          : <Verdict decision="BLOCK" title={`Deployed contract: BLOCKED by ${contractCodes.length} invariant${contractCodes.length === 1 ? '' : 's'}`} detail={contractCodes.join(' · ')} />}
+          ? <Verdict decision="ALLOW" title="Deployed contract: policy-clear — all authorization checks pass" detail={`All ${ORDER.length} authorization policy checks pass on-chain for mandate ${result.intent.authorization_id}. Execution still requires proposal recording, independent attestation of this intent hash, and valid lifecycle, gas and balance preconditions.`} />
+          : <Verdict decision="BLOCK" title={`Deployed contract: BLOCKED by ${contractCodes.length} authorization check${contractCodes.length === 1 ? '' : 's'}`} detail={contractCodes.join(' · ')} />}
       <div className="row">
         <Badge tone="cyan"><Radio size={11} /> live NEAR testnet{result ? ` · block #${result.contract.block_height.toLocaleString()}` : ''}</Badge>
         {result && <Badge tone="plain">{result.contract.endpoint} · {result.contract.latency_ms} ms</Badge>}
@@ -179,7 +193,7 @@ export function LiveProbe() {
       </div>
 
       <div className="grid g2">
-        <Panel eyebrow="3 · Deployed Rust contract · live" title={result ? `${ORDER.length - contractCodes.length}/${ORDER.length} invariants pass` : 'Invariants'} action={<Badge tone="cyan"><Activity size={11} /> check_intent</Badge>}>
+        <Panel eyebrow="3 · Deployed Rust contract · live" title={result ? `${ORDER.length - contractCodes.length}/${ORDER.length} authorization policy checks pass` : 'Authorization policy checks'} action={<Badge tone="cyan"><Activity size={11} /> check_intent</Badge>}>
           {result ? <Checks checks={ORDER.map((code) => ({ invariant: code, passed: !contractCodes.includes(code), detail: DETAIL[code] }))} /> : <Empty>Evaluating…</Empty>}
         </Panel>
         <Panel eyebrow="4 · Independent replication" title="Re-derived in your browser" action={<Badge tone="green"><ShieldCheck size={11} /> TypeScript</Badge>}>

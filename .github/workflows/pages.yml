@@ -1,4 +1,4 @@
-name: Pages (static evidence viewer)
+name: Pages (live testnet console)
 on:
   push:
     branches: [main]

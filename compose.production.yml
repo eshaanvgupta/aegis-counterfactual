@@ -1,7 +1,7 @@
 name: aegis-counterfactual
 
 x-service-image: &service-image
-  image: ${AEGIS_IMAGE_PREFIX:-ghcr.io/eshaanvgupta/aegis-counterfactual}-service:latest
+  image: ${AEGIS_IMAGE_PREFIX:-ghcr.io/eshaanvgupta/aegis-counterfactual}-service:${AEGIS_IMAGE_TAG:-latest}
   build:
     context: .
     dockerfile: deploy/Dockerfile.service
@@ -89,7 +89,7 @@ services:
       start_period: 20s
 
   web:
-    image: ${AEGIS_IMAGE_PREFIX:-ghcr.io/eshaanvgupta/aegis-counterfactual}-web:latest
+    image: ${AEGIS_IMAGE_PREFIX:-ghcr.io/eshaanvgupta/aegis-counterfactual}-web:${AEGIS_IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: deploy/Dockerfile.web

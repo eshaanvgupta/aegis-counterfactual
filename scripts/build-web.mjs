@@ -21,4 +21,4 @@ const run = (cmd, args, env = {}) => {
 };
 run('node', [join('scripts', 'export-web-evidence.mjs')]);
 run('pnpm', ['--filter', '@aegis/web', 'exec', 'next', 'build'], { AEGIS_STATIC: isStatic ? '1' : '0', NEXT_TELEMETRY_DISABLED: '1' });
-if (isStatic) console.log('Static evidence viewer written to apps/web/out');
+if (isStatic) console.log('Public live console written to apps/web/out (static assets; live NEAR data at runtime)');

@@ -27,6 +27,9 @@ required.forEach(rejectPlaceholder);
 if ((process.env.AEGIS_MODE ?? 'TESTNET') !== 'TESTNET') throw new Error('Production runtime must use AEGIS_MODE=TESTNET');
 if ((process.env.NEAR_NETWORK_ID ?? 'testnet') !== 'testnet') throw new Error('NEAR_NETWORK_ID must be testnet');
 if (process.env.NEAR_VAULT_PRIVATE_KEY) throw new Error('Runtime services must not receive NEAR_VAULT_PRIVATE_KEY');
+if (!/^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$/.test(process.env.AEGIS_IMAGE_TAG ?? 'latest')) {
+  throw new Error('AEGIS_IMAGE_TAG is not a valid container image tag');
+}
 
 const origin = new URL(value('AEGIS_PUBLIC_ORIGIN'));
 const localOrigin = ['localhost', '127.0.0.1'].includes(origin.hostname);

@@ -65,7 +65,7 @@ The CVR evidence root is a Merkle root over six sections: `snapshot, reference, 
 
 ## Service hardening
 
-The services enforce an origin allowlist (`AEGIS_WEB_ORIGINS`), require an `X-AEGIS-Client` header on state-changing requests (CSRF), apply per-route rate limits, bound request bodies, and protect owner and verifier routes with bearer tokens. A service refuses to start if it receives another role's private key. SQLite (`runtime/aegis.sqlite3`) is an index, never an authority.
+The services enforce an origin allowlist (`AEGIS_WEB_ORIGINS`), require an `X-AEGIS-Client` header on state-changing requests (CSRF), apply per-route rate limits, bound request bodies, and protect owner and verifier routes with bearer tokens. A service refuses to start if it receives another role's private key. In TESTNET mode, SQLite (`runtime/aegis.sqlite3`) indexes off-chain evidence while NEAR is authoritative; in LOCAL_SIMULATION mode, SQLite persists the simulated vault state.
 
 ## Modes
 
