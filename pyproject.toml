@@ -2,6 +2,8 @@
 pythonpath = ["services/replay-engine"]
 testpaths = ["tests"]
 addopts = "-q"
+# Upstream Starlette TestClient still references a deprecated anyio alias; it is not AEGIS code.
+filterwarnings = ["ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning"]
 
 [tool.pyright]
 extraPaths = ["services/replay-engine"]

@@ -12,7 +12,11 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const isStatic = process.argv.includes('--static');
 const run = (cmd, args, env = {}) => {
-  const r = spawnSync(cmd, args, { cwd: root, stdio: 'inherit', shell: process.platform === 'win32', env: { ...process.env, ...env } });
+  const options = { cwd: root, stdio: 'inherit', env: { ...process.env, ...env } };
+  // Windows resolves pnpm.cmd only through a shell; pass one command string there (no argument array with shell).
+  const r = process.platform === 'win32'
+    ? spawnSync([cmd, ...args].join(' '), { ...options, shell: true })
+    : spawnSync(cmd, args, options);
   if (r.status !== 0) process.exit(r.status ?? 1);
 };
 run('node', [join('scripts', 'export-web-evidence.mjs')]);
